@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="customerprofilepds">
+
+
+<resultMap id="result_subscriber_resource_history" class="com.telus.customerprofilemgt.domain.SubscriberResourceHistory">
+	<result property="id" column="HIST_ID"/>	
+	<result property="subscriberResourceId" column="SUBSCRBR_PRIM_RESRC_ID" nullValue="0"/>	
+	<result property="serviceInstanceId" column="SERVICE_INSTANCE_ID"/>
+	<result property="serviceTypeCode" column="SERVICE_TYPE_CD"/>
+	<result property="serviceResourceValueId" column="SERVICE_RESRC_VAL_ID"/>
+	<result property="statusCode" column="SUBSCRBR_RESRC_STATUS_CD"/>
+	<result property="statusDate" column="SUBSCRBR_RESRC_STATUS_DT"/>
+	<result property="effectiveEndDate" column="EFF_END_DT" />
+	<result property="masterRequestSourceId" column="ORIG_CUST_RQST_MASTER_SRC_ID" nullValue="0"/>
+	<result property="masterRequestRef" column="ORIG_CUST_RQST_KEY_ID" />
+	<result property="lastUpdateTimestamp" column="LAST_UPDT_TS" />	
+</resultMap>
+
+
+<!--		Configuration for INSERT_RESOURCE_HISTORY		-->
+<insert id="insert_resource_history" parameterClass="java.util.Map">
+  <selectKey resultClass="long" keyProperty="id">
+	select HIST_ID_SEQ.NEXTVAL as id from dual
+  </selectKey>
+  insert into SUBSCRIBER_PRIMARY_RSRC_HIST 
+  	(	
+  	HIST_ID,
+  	SUBSCRBR_PRIM_RESRC_ID,
+  	SERVICE_INSTANCE_ID,
+  	SERVICE_TYPE_CD,
+  	SERVICE_RESRC_VAL_ID,
+  	SUBSCRBR_RESRC_STATUS_CD,
+  	SUBSCRBR_RESRC_STATUS_DT,
+	EFF_END_DT, 
+	ORIG_CUST_RQST_MASTER_SRC_ID,
+	ORIG_CUST_RQST_KEY_ID,
+	CREATE_TS, 
+	CREATE_USER_ID, 
+	LAST_UPDT_TS, 
+	LAST_UPDT_USER_ID,
+	DATA_SRC_ID 
+ 	) 
+  values 
+    (
+	#id#, 
+	#history.subscriberResourceId:NUMERIC#,
+	#history.serviceInstanceId:NUMERIC#,
+	#history.serviceTypeCode:VARCHAR:NONE#,
+	#history.serviceResourceValueId:VARCHAR:NONE#,
+	#history.statusCode:VARCHAR:NONE#,
+	#history.statusDate:TIMESTAMP#,
+	#history.effectiveEndDate:TIMESTAMP#,
+	#history.masterRequestSourceId:NUMERIC#,
+	#history.masterRequestRef:VARCHAR:NONE#,
+	current_timestamp,
+	#userId:VARCHAR:NONE#,
+	current_timestamp,
+	#userId:VARCHAR:NONE#,
+	#sourceId:NUMERIC#
+	)
+</insert>
+
+
+<select id="get_resource_history_by_resource_id" 
+		resultMap="result_subscriber_resource_history" 
+		parameterClass="java.lang.Long">
+		Select
+			HIST_ID,
+			SUBSCRBR_PRIM_RESRC_ID,
+			SERVICE_INSTANCE_ID,
+			SERVICE_TYPE_CD,
+			SERVICE_RESRC_VAL_ID,
+			SUBSCRBR_RESRC_STATUS_CD,
+			SUBSCRBR_RESRC_STATUS_DT,
+			EFF_END_DT,
+			ORIG_CUST_RQST_MASTER_SRC_ID,
+			ORIG_CUST_RQST_KEY_ID,
+			LAST_UPDT_TS
+		From 
+			SUBSCRIBER_PRIMARY_RSRC_HIST
+		Where 
+			SUBSCRBR_PRIM_RESRC_ID = #value#
+</select>
+
+<delete id="delete_resource_history_by_resource_id"  parameterClass="java.lang.Long">
+	delete from SUBSCRIBER_PRIMARY_RSRC_HIST 
+	where 
+		SUBSCRBR_PRIM_RESRC_ID = #value# 
+</delete>
+
+</sqlMap>

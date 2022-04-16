@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="customerprofilepds">
+
+
+<resultMap id="result_subscriber_identity_profile" class="com.telus.customerprofilemgt.domain.SubscriberIdentityProfile">
+	<result property="id" column="CUSTOMER_IDENTITY_PROFL_ID"/>
+	<result property="customerId" column="CUSTOMER_ID" nullValue="0"/>
+	<result property="statusCode" column="IDNTY_PROFL_STATUS_CD"/>
+	<result property="resourceId" column="SUBSCRBR_PRIM_RESRC_ID" nullValue="0"/>
+	<result property="effectiveStartDate" column="EFF_START_DT"/>
+	<result property="effectiveEndDate" column="EFF_END_DT"/>
+	<result property="masterRequestSourceId" column="ORIG_CUST_RQST_MASTER_SRC_ID" nullValue="0"/>
+	<result property="masterRequestRef" column="ORIG_CUST_RQST_KEY_ID"/>	
+	<result property="lastUpdateTimestamp" column="LAST_UPDT_TS"/>
+</resultMap>
+
+<resultMap id="result_subscriber_identity_profile_full" class="com.telus.customerprofilemgt.domain.SubscriberIdentityProfile">
+	<result property="id" column="CUSTOMER_IDENTITY_PROFL_ID"/>
+	<result property="customerId" column="CUSTOMER_ID" nullValue="0"/>
+	<result property="statusCode" column="IDNTY_PROFL_STATUS_CD"/>
+	<result property="resourceId" column="SUBSCRBR_PRIM_RESRC_ID" nullValue="0"/>
+	<result property="effectiveStartDate" column="EFF_START_DT"/>
+	<result property="effectiveEndDate" column="EFF_END_DT"/>
+	<result property="masterRequestSourceId" column="ORIG_CUST_RQST_MASTER_SRC_ID" nullValue="0"/>
+	<result property="masterRequestRef" column="ORIG_CUST_RQST_KEY_ID"/>
+	<result property="lastUpdateTimestamp" column="LAST_UPDT_TS"/>
+	<result property="credentials" column="CUSTOMER_IDENTITY_PROFL_ID" select="customerprofilepds.get_current_credential_by_identity" />
+	<result property="parameters" column="CUSTOMER_IDENTITY_PROFL_ID" select="customerprofilepds.get_profile_parameter_by_id" />
+</resultMap>
+
+<resultMap id="result_subscriber_identity_profile_full_with_future" class="com.telus.customerprofilemgt.domain.SubscriberIdentityProfile">
+	<result property="id" column="CUSTOMER_IDENTITY_PROFL_ID"/>
+	<result property="customerId" column="CUSTOMER_ID" nullValue="0"/>
+	<result property="statusCode" column="IDNTY_PROFL_STATUS_CD"/>
+	<result property="resourceId" column="SUBSCRBR_PRIM_RESRC_ID" nullValue="0"/>
+	<result property="effectiveStartDate" column="EFF_START_DT"/>
+	<result property="effectiveEndDate" column="EFF_END_DT"/>
+	<result property="masterRequestSourceId" column="ORIG_CUST_RQST_MASTER_SRC_ID" nullValue="0"/>
+	<result property="masterRequestRef" column="ORIG_CUST_RQST_KEY_ID"/>
+	<result property="lastUpdateTimestamp" column="LAST_UPDT_TS"/>
+	<result property="credentials" column="CUSTOMER_IDENTITY_PROFL_ID" select="customerprofilepds.get_current_and_future_credential_by_identity" />
+	<result property="parameters" column="CUSTOMER_IDENTITY_PROFL_ID" select="customerprofilepds.get_profile_parameter_by_id" />
+</resultMap>
+
+<resultMap id="result_ceased_subscriber_identity_profile" class="com.telus.customerprofilemgt.domain.SubscriberIdentityProfile">
+	<result property="id" column="CUSTOMER_IDENTITY_PROFL_ID"/>
+	<result property="customerId" column="CUSTOMER_ID" nullValue="0"/>
+	<result property="statusCode" column="IDNTY_PROFL_STATUS_CD"/>
+	<result property="resourceId" column="SUBSCRBR_PRIM_RESRC_ID" nullValue="0"/>
+	<result property="effectiveStartDate" column="EFF_START_DT"/>
+	<result property="effectiveEndDate" column="EFF_END_DT"/>
+	<result property="masterRequestSourceId" column="ORIG_CUST_RQST_MASTER_SRC_ID" nullValue="0"/>
+	<result property="masterRequestRef" column="ORIG_CUST_RQST_KEY_ID"/>
+	<result property="lastUpdateTimestamp" column="LAST_UPDT_TS"/>	
+	<result property="credentials" column="CUSTOMER_IDENTITY_PROFL_ID" select="customerprofilepds.get_historical_credential_by_identity" />
+	<result property="parameters" column="CUSTOMER_IDENTITY_PROFL_ID" select="customerprofilepds.get_profile_parameter_by_id" />
+</resultMap>
+
+<resultMap id="result_ceased_subscriber_identity_profile_full" class="com.telus.customerprofilemgt.domain.SubscriberIdentityProfile">
+	<result property="id" column="CUSTOMER_IDENTITY_PROFL_ID"/>
+	<result property="customerId" column="CUSTOMER_ID" nullValue="0"/>
+	<result property="statusCode" column="IDNTY_PROFL_STATUS_CD"/>
+	<result property="resourceId" column="SUBSCRBR_PRIM_RESRC_ID" nullValue="0"/>
+	<result property="effectiveStartDate" column="EFF_START_DT"/>
+	<result property="effectiveEndDate" column="EFF_END_DT"/>
+	<result property="masterRequestSourceId" column="ORIG_CUST_RQST_MASTER_SRC_ID" nullValue="0"/>
+	<result property="masterRequestRef" column="ORIG_CUST_RQST_KEY_ID"/>
+	<result property="lastUpdateTimestamp" column="LAST_UPDT_TS"/>
+	<result property="credentials" column="CUSTOMER_IDENTITY_PROFL_ID" select="customerprofilepds.get_latest_ceased_credential_by_identity" />
+	<result property="parameters" column="CUSTOMER_IDENTITY_PROFL_ID" select="customerprofilepds.get_profile_parameter_by_id" />
+</resultMap>
+
+
+<resultMap id="result_subscriber_identity_profile_full_all_state" class="com.telus.customerprofilemgt.domain.SubscriberIdentityProfile">
+	<result property="id" column="CUSTOMER_IDENTITY_PROFL_ID"/>
+	<result property="customerId" column="CUSTOMER_ID" nullValue="0"/>
+	<result property="statusCode" column="IDNTY_PROFL_STATUS_CD"/>
+	<result property="resourceId" column="SUBSCRBR_PRIM_RESRC_ID" nullValue="0"/>
+	<result property="effectiveStartDate" column="EFF_START_DT"/>
+	<result property="effectiveEndDate" column="EFF_END_DT"/>
+	<result property="masterRequestSourceId" column="ORIG_CUST_RQST_MASTER_SRC_ID" nullValue="0"/>
+	<result property="masterRequestRef" column="ORIG_CUST_RQST_KEY_ID"/>
+	<result property="lastUpdateTimestamp" column="LAST_UPDT_TS"/>	
+	<result property="credentials" column="CUSTOMER_IDENTITY_PROFL_ID" select="customerprofilepds.get_all_state_credential_by_identity" />
+	<result property="parameters" column="CUSTOMER_IDENTITY_PROFL_ID" select="customerprofilepds.get_profile_parameter_by_id" />
+</resultMap>
+
+
+<!--		Configuration for GET_SUBSCRIBER_IDENTITY_PROFILES_BY_RESOURCE_ID		-->
+<select id="get_subscriber_identity_profiles_by_resource_id" 
+	resultMap="result_subscriber_identity_profile" 
+		parameterClass="java.util.Map">
+	Select 
+	CUSTOMER_IDENTITY_PROFL_ID ,
+	CUSTOMER_ID ,
+	IDNTY_PROFL_STATUS_CD,
+	SUBSCRBR_PRIM_RESRC_ID,
+	EFF_START_DT,
+	EFF_END_DT,
+	ORIG_CUST_RQST_MASTER_SRC_ID,
+	ORIG_CUST_RQST_KEY_ID,
+	LAST_UPDT_TS
+	
+	From
+	Customer_identity_profile 
+		where SUBSCRBR_PRIM_RESRC_ID = #resourceId#
+	  	order by 
+  			IDNTY_PROFL_STATUS_CD asc	
+</select>
+
+<!-- t836619 CR6609 -->
+<!--		Configuration for GET_SUBSCRIBER_IDENTITY_PROFILES_BY_REQUEST_REF_AND_RESOURCE_ID		-->
+<select id="get_subscriber_identity_profiles_by_request_ref_and_resource_id" 
+	resultMap="result_subscriber_identity_profile" 
+		parameterClass="java.util.Map">
+	Select 
+	CUSTOMER_IDENTITY_PROFL_ID,
+	CUSTOMER_ID,
+	IDNTY_PROFL_STATUS_CD,
+	SUBSCRBR_PRIM_RESRC_ID,
+	EFF_START_DT,
+	EFF_END_DT,
+	ORIG_CUST_RQST_MASTER_SRC_ID,
+	ORIG_CUST_RQST_KEY_ID,
+	LAST_UPDT_TS
+	
+	From
+		Customer_identity_profile
+	where ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId#
+		AND ORIG_CUST_RQST_KEY_ID = #masterRequestRef#
+		AND SUBSCRBR_PRIM_RESRC_ID = #resourceId#
+  	order by 
+  		IDNTY_PROFL_STATUS_CD asc	
+</select>
+
+<!--		Configuration for GET_SUBSCRIBER_IDENTITY_PROFILES_BY_RESOURCE_ID_FULL		-->
+<select id="get_subscriber_identity_profiles_by_resource_id_full" 
+	resultMap="result_subscriber_identity_profile_full" 
+		parameterClass="java.lang.Long">
+	Select 
+	CUSTOMER_IDENTITY_PROFL_ID ,
+	CUSTOMER_ID ,
+	IDNTY_PROFL_STATUS_CD,
+	SUBSCRBR_PRIM_RESRC_ID,
+	EFF_START_DT,
+	EFF_END_DT,
+	ORIG_CUST_RQST_MASTER_SRC_ID,
+	ORIG_CUST_RQST_KEY_ID,
+	LAST_UPDT_TS
+	
+	From
+	Customer_identity_profile 
+		where SUBSCRBR_PRIM_RESRC_ID = #value#	
+  	order by 
+  		IDNTY_PROFL_STATUS_CD asc					
+</select>
+
+<!--		Configuration for STAT_ID_GET_SUBSCRIBER_IDENTITY_PROFILE_BY_IDENTITY_ID_FULL		-->
+<select id="get_subscriber_identity_profile_by_identity_id_full" 
+	resultMap="result_subscriber_identity_profile_full" 
+		parameterClass="java.util.Map">
+	Select 
+	CUSTOMER_IDENTITY_PROFL_ID ,
+	CUSTOMER_ID ,
+	IDNTY_PROFL_STATUS_CD,
+	SUBSCRBR_PRIM_RESRC_ID,
+	EFF_START_DT,
+	EFF_END_DT,
+	ORIG_CUST_RQST_MASTER_SRC_ID,
+	ORIG_CUST_RQST_KEY_ID,
+	LAST_UPDT_TS
+	
+	From
+	Customer_identity_profile 
+		where CUSTOMER_IDENTITY_PROFL_ID = #resourceId#				
+</select>
+
+
+<!--		Configuration for GET_NOT_CEASED_SUBSCRIBER_IDENTITY_PROFILES_BY_RESOURCE_ID	-->
+<select id="get_not_ceased_subscriber_identity_profiles_by_resource_id" 
+	resultMap="result_subscriber_identity_profile_full_with_future" 
+		parameterClass="java.lang.Long">
+	Select 
+		CUSTOMER_IDENTITY_PROFL_ID,
+		CUSTOMER_ID,
+		IDNTY_PROFL_STATUS_CD,
+		SUBSCRBR_PRIM_RESRC_ID,
+		EFF_START_DT,
+		EFF_END_DT,
+		ORIG_CUST_RQST_MASTER_SRC_ID,
+		ORIG_CUST_RQST_KEY_ID,
+		LAST_UPDT_TS	
+	From
+		Customer_identity_profile 
+	where 
+		SUBSCRBR_PRIM_RESRC_ID = #value# AND
+		IDNTY_PROFL_STATUS_CD in ('A', 'P', 'S')
+</select>
+
+<!--		Configuration for GET_SUBSCRIBER_IDENTITY_PROFILES_BY_RESOURCE_ID_FULL_WITH_FUTURE		-->
+<select id="get_subscriber_identity_profiles_by_resource_id_full_with_future" 
+	resultMap="result_subscriber_identity_profile_full_with_future" 
+		parameterClass="java.lang.Long">
+	Select 
+	CUSTOMER_IDENTITY_PROFL_ID ,
+	CUSTOMER_ID ,
+	IDNTY_PROFL_STATUS_CD,
+	SUBSCRBR_PRIM_RESRC_ID,
+	EFF_START_DT,
+	EFF_END_DT,
+	ORIG_CUST_RQST_MASTER_SRC_ID,
+	ORIG_CUST_RQST_KEY_ID,
+	LAST_UPDT_TS
+	
+	From
+	Customer_identity_profile 
+		where SUBSCRBR_PRIM_RESRC_ID = #value#
+  	order by 
+  		IDNTY_PROFL_STATUS_CD asc						
+</select>
+
+<!--		Configuration for GET_CEASED_SUBSCRIBER_IDENTITY_PROFILES_BY_RESOURCE_ID		-->
+<select id="get_ceased_subscriber_identity_profiles_by_resource_id" 
+	resultMap="result_ceased_subscriber_identity_profile" 
+		parameterClass="java.lang.Long">
+	Select 
+	CUSTOMER_IDENTITY_PROFL_ID ,
+	CUSTOMER_ID ,
+	IDNTY_PROFL_STATUS_CD,
+	SUBSCRBR_PRIM_RESRC_ID,
+	EFF_START_DT,
+	EFF_END_DT,
+	ORIG_CUST_RQST_MASTER_SRC_ID,
+	ORIG_CUST_RQST_KEY_ID,
+	LAST_UPDT_TS
+	
+	From
+	Customer_identity_profile 
+		
+	where 
+		SUBSCRBR_PRIM_RESRC_ID = #value# AND
+		IDNTY_PROFL_STATUS_CD = 'C'
+</select>
+
+<!--		Configuration for GET_SUBSCRIBER_IDENTITY_PROFILE_BY_ID		-->
+<select id="get_subscriber_identity_profile_by_id" 
+	resultMap="result_subscriber_identity_profile" 
+		parameterClass="java.util.Map">
+	Select 
+	CUSTOMER_IDENTITY_PROFL_ID ,
+	CUSTOMER_ID ,
+	IDNTY_PROFL_STATUS_CD,
+	SUBSCRBR_PRIM_RESRC_ID,
+	EFF_START_DT,
+	EFF_END_DT,
+	ORIG_CUST_RQST_MASTER_SRC_ID,
+	ORIG_CUST_RQST_KEY_ID,
+	LAST_UPDT_TS
+	
+	From
+	Customer_identity_profile 
+		where CUSTOMER_IDENTITY_PROFL_ID = #profileId#
+</select>
+
+<!--		Configuration for GET_SUBSCRIBER_IDENTITY_PROFILE_BY_RESOURCE_TYPE_AND_PARAM		-->
+<select id="get_subscriber_identity_profiles_by_resource_type_and_param" 
+	resultMap="result_subscriber_identity_profile" 
+		parameterClass="java.util.Map">
+	Select 
+	A.CUSTOMER_IDENTITY_PROFL_ID ,
+	A.CUSTOMER_ID ,
+	A.IDNTY_PROFL_STATUS_CD,
+	A.SUBSCRBR_PRIM_RESRC_ID,
+	A.EFF_START_DT,
+	A.EFF_END_DT,
+	A.ORIG_CUST_RQST_MASTER_SRC_ID,
+	A.ORIG_CUST_RQST_KEY_ID,
+	A.LAST_UPDT_TS
+	
+	From
+	Customer_identity_profile A, Subscriber_primary_resource B, Identity_profile_parameter C 
+	where B.SERVICE_TYPE_CD = #serviceTypeCode#
+		AND B.SERVICE_RESRC_VAL_ID = #resourceValueId#	
+		AND B.SUBSCRBR_PRIM_RESRC_ID = A.SUBSCRBR_PRIM_RESRC_ID
+		And C.CUSTOMER_IDENTITY_PROFL_ID = A.CUSTOMER_IDENTITY_PROFL_ID
+		AND C.IDNTY_PROFL_PARM_NM = #parameterName#
+		AND C.IDNTY_PROFL_PARM_VAL_TXT = #parameterValue#
+  	order by 
+  		A.IDNTY_PROFL_STATUS_CD asc				
+</select>
+
+<!--		Configuration for GET_SUBSCRIBER_IDENTITY_PROFILE_BY_RESOURCE_TYPE		-->
+<select id="get_subscriber_identity_profiles_by_resource_type" 
+	resultMap="result_subscriber_identity_profile" 
+		parameterClass="java.util.Map">
+	Select 
+	A.CUSTOMER_IDENTITY_PROFL_ID ,
+	A.CUSTOMER_ID ,
+	A.IDNTY_PROFL_STATUS_CD,
+	A.SUBSCRBR_PRIM_RESRC_ID,
+	A.EFF_START_DT,
+	A.EFF_END_DT,
+	A.ORIG_CUST_RQST_MASTER_SRC_ID,
+	A.ORIG_CUST_RQST_KEY_ID,
+	A.LAST_UPDT_TS
+	
+	From
+	Customer_identity_profile A, Subscriber_primary_resource B 
+	where B.SERVICE_TYPE_CD = #serviceTypeCode#
+		AND B.SERVICE_RESRC_VAL_ID = #resourceValueId#	
+		AND B.SUBSCRBR_PRIM_RESRC_ID = A.SUBSCRBR_PRIM_RESRC_ID
+  	order by 
+  		A.IDNTY_PROFL_STATUS_CD asc		
+</select>
+
+
+<!--  t832008 - CR6609  -->
+<!--	Configuration for STAT_ID_GET_SUBSCRIBER_IDENTITY_PROFILES_BY_RESOURCE_ID_FOR_CC		-->
+<select id="get_subscriber_identity_profiles_by_resource_id_for_cc" 
+	resultMap="result_subscriber_identity_profile" 
+		parameterClass="java.util.Map"> 
+Select
+	C.CUSTOMER_IDENTITY_PROFL_ID ,
+	C.CUSTOMER_ID ,
+	C.IDNTY_ROLE_CD,
+	C.IDNTY_PROFL_STATUS_CD,
+	C.SUBSCRBR_PRIM_RESRC_ID,
+	C.EFF_START_DT,
+	C.EFF_END_DT,
+	C.ORIG_CUST_RQST_MASTER_SRC_ID,
+	C.ORIG_CUST_RQST_KEY_ID,
+	C.LAST_UPDT_TS
+from
+	CUSTOMER_IDENTITY_PROFILE  C,
+	SUBSCRIBER_PRIMARY_RESOURCE  R,
+	IDENTITY_PROFILE_PARAMETER  P
+where
+	C.SUBSCRBR_PRIM_RESRC_ID = #resourceId# AND
+	(P.CUSTOMER_IDENTITY_PROFL_ID = C.CUSTOMER_IDENTITY_PROFL_ID) AND
+	P.IDNTY_PROFL_PARM_NM = 'CardType' AND
+	P.ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+	P.ORIG_CUST_RQST_KEY_ID = #masterRequestRef# 
+</select>
+
+
+
+<!--		Configuration for UPDATE_SUBSCRIBER_IDENTITY_BY_RESOURCE_ID		-->
+<update id="update_subscriber_identity_by_resource_id" parameterClass="java.util.Map">
+  	update CUSTOMER_IDENTITY_PROFILE
+	set IDNTY_PROFL_STATUS_CD = #newStatus:VARCHAR:NONE#,
+		<dynamic prepend="">
+			<isNotNull property="effectiveStartDate">
+				EFF_START_DT=#effectiveStartDate:TIMESTAMP#,
+			</isNotNull>
+			<isNotNull property="effectiveEndDate">
+				EFF_END_DT=#effectiveEndDate:TIMESTAMP#,
+			</isNotNull>
+			<isNull property="effectiveEndDate">
+				EFF_END_DT=NULL,
+			</isNull>
+		</dynamic>
+		ORIG_CUST_RQST_MASTER_SRC_ID= #masterRequestSourceId:NUMERIC#,
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef:VARCHAR:NONE#,
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where SUBSCRBR_PRIM_RESRC_ID=#resourceId# 
+		<dynamic prepend="AND">
+      		<iterate property="originalStatus"
+        		open=" IDNTY_PROFL_STATUS_CD IN ("
+       			close=")" conjunction=",">
+        		#originalStatus[]#
+      		</iterate>
+  		</dynamic>
+		
+</update>
+
+<!--		Configuration for UPDATE_SUBSCRIBER_IDENTITY_WITH_PARAM_BY_RESOURCE_ID		-->
+<update id="update_subscriber_identity_with_param_by_resource_id" parameterClass="java.util.Map">
+  	update CUSTOMER_IDENTITY_PROFILE 
+	set IDNTY_PROFL_STATUS_CD = #newStatus:VARCHAR:NONE#,
+		<dynamic prepend="">
+			<isNotNull property="effectiveStartDate">
+				EFF_START_DT=#effectiveStartDate:TIMESTAMP#,
+			</isNotNull>
+			<isNotNull property="effectiveEndDate">
+				EFF_END_DT=#effectiveEndDate:TIMESTAMP#,
+			</isNotNull>
+			<isNull property="effectiveEndDate">
+				EFF_END_DT=NULL,
+			</isNull>
+		</dynamic>
+		ORIG_CUST_RQST_MASTER_SRC_ID= #masterRequestSourceId:NUMERIC#,
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef:VARCHAR:NONE#,
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where CUSTOMER_IDENTITY_PROFL_ID IN 
+		(select A.CUSTOMER_IDENTITY_PROFL_ID 
+			from CUSTOMER_IDENTITY_PROFILE A,
+				 IDENTITY_PROFILE_PARAMETER B
+			where   A.SUBSCRBR_PRIM_RESRC_ID = #resourceId# 
+				AND A.CUSTOMER_IDENTITY_PROFL_ID = B.CUSTOMER_IDENTITY_PROFL_ID
+				AND B.IDNTY_PROFL_PARM_NM = #parameterName#
+				AND B.IDNTY_PROFL_PARM_VAL_TXT = #parameterValue#
+		)
+		<dynamic prepend="AND">
+      		<iterate property="originalStatus"
+        		open=" IDNTY_PROFL_STATUS_CD IN ("
+       			close=")" conjunction=",">
+        		#originalStatus[]#
+      		</iterate>
+  		</dynamic>
+		
+</update>
+
+
+<!--  Configuration for UPDATE_TO_ACTIVE_LAST_CEASED_IDENTITY_WITH_PARAM_BY_RESOURCE_ID  -->
+<update id="update_to_active_last_ceased_identity_with_param_by_resource_id" parameterClass="java.util.Map">
+  	update CUSTOMER_IDENTITY_PROFILE A
+	set     IDNTY_PROFL_STATUS_CD = 'A',
+		EFF_START_DT=#effectiveStartDate:TIMESTAMP#,
+		EFF_END_DT=NULL,
+		ORIG_CUST_RQST_MASTER_SRC_ID= #masterRequestSourceId:NUMERIC#,
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef:VARCHAR:NONE#,
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where CUSTOMER_IDENTITY_PROFL_ID = 
+		(select A.CUSTOMER_IDENTITY_PROFL_ID 
+		    from CUSTOMER_IDENTITY_PROFILE A, IDENTITY_PROFILE_PARAMETER B
+		    where B.IDNTY_PROFL_PARM_NM = #parameterName#
+		    and   B.IDNTY_PROFL_PARM_VAL_TXT = #parameterValue#
+		    and   A.EFF_END_DT = 
+  	                   (select max(EFF_END_DT) 
+  	                     from CUSTOMER_IDENTITY_PROFILE A 
+  	                     where A.SUBSCRBR_PRIM_RESRC_ID = #resourceId# 
+  	                     and A.IDNTY_PROFL_STATUS_CD = 'C'
+  	                     and A.CUSTOMER_IDENTITY_PROFL_ID = B.CUSTOMER_IDENTITY_PROFL_ID
+    	                   )
+  	            and rownum = 1
+  	        )
+        
+		
+</update>
+
+
+<!--  Configuration for UPDATE_TO_ACTIVE_LAST_CEASED_IDENTITY_BY_RESOURCE_ID  -->
+<update id="update_to_active_last_ceased_identity_by_resource_id" parameterClass="java.util.Map">
+  	update CUSTOMER_IDENTITY_PROFILE A
+	set     IDNTY_PROFL_STATUS_CD = 'A',
+		EFF_START_DT=#effectiveStartDate:TIMESTAMP#,
+		EFF_END_DT=NULL,
+		ORIG_CUST_RQST_MASTER_SRC_ID= #masterRequestSourceId:NUMERIC#,
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef:VARCHAR:NONE#,
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where A.SUBSCRBR_PRIM_RESRC_ID = #resourceId#
+	and   A.EFF_END_DT = 
+  	(select max(EFF_END_DT) from CUSTOMER_IDENTITY_PROFILE A where A.SUBSCRBR_PRIM_RESRC_ID = #resourceId# 
+  	 and A.IDNTY_PROFL_STATUS_CD = 'C'
+  	)
+        and rownum = 1
+		
+</update>
+
+
+<!--  Configuration for UPDATE_TO_CEASED_BY_RESOURCE_ID_AND_CUSTOMER_ID  -->
+<update id="update_to_ceased_by_resource_id_and_customer_id" parameterClass="java.util.Map">
+  	update CUSTOMER_IDENTITY_PROFILE A
+	set     IDNTY_PROFL_STATUS_CD = 'C',
+		EFF_END_DT=#effectiveEndDate:TIMESTAMP#,
+		ORIG_CUST_RQST_MASTER_SRC_ID= #masterRequestSourceId:NUMERIC#,
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef:VARCHAR:NONE#,
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where A.SUBSCRBR_PRIM_RESRC_ID = #resourceId#
+	and not A.CUSTOMER_ID = #customerId#
+		
+</update>
+
+
+<!--		Configuration for UPDATE_SUBSCRIBER_IDENTITY_BY_REQUEST_REF		-->
+<update id="update_subscriber_identity_by_request_ref" parameterClass="java.util.Map">
+  	update CUSTOMER_IDENTITY_PROFILE
+	set IDNTY_PROFL_STATUS_CD = #newStatus:VARCHAR:NONE#,
+		EFF_START_DT = #effectiveStartDate:TIMESTAMP#,
+		EFF_END_DT = NULL,		
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#,
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef#
+	where SUBSCRBR_PRIM_RESRC_ID=#resourceId#
+		AND IDNTY_PROFL_STATUS_CD=#originalStatus#
+		AND ORIG_CUST_RQST_MASTER_SRC_ID= #masterRequestSourceId#
+		AND ORIG_CUST_RQST_KEY_ID = #lastMasterRequestRef#
+		<!-- AND MASTER_SOURCE_ID = #masterSourceId# -->
+</update>
+
+
+<!--  t832008 - CR6609  -->
+<!--		Configuration for UPDATE_IDENTITY_STATUS_BY_PRIMARY_RESOURCE_ID		-->
+<update id="update_identity_status_by_primary_resource_id" parameterClass="java.util.Map">
+  	update CUSTOMER_IDENTITY_PROFILE
+	set IDNTY_PROFL_STATUS_CD = #newStatus:VARCHAR:NONE#,
+		EFF_START_DT = #effectiveStartDate:TIMESTAMP#,
+		EFF_END_DT = NULL,		
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#,
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef#
+	where SUBSCRBR_PRIM_RESRC_ID=#resourceId#
+		AND IDNTY_PROFL_STATUS_CD=#originalStatus#
+</update>
+
+
+<!--  t832008 - CR6609  -->
+<!--		Configuration for UPDATE_IDENTITY_STATUS_BY_IDENTITY_ID		-->
+<update id="update_identity_status_by_identity_id" parameterClass="java.util.Map">
+  	update CUSTOMER_IDENTITY_PROFILE
+	set IDNTY_PROFL_STATUS_CD = #newStatus:VARCHAR:NONE#,
+		EFF_START_DT = #effectiveStartDate:TIMESTAMP#,
+		EFF_END_DT = NULL,		
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where SUBSCRBR_IDENTITY_PROFL_ID=#identityId#
+		AND IDNTY_PROFL_STATUS_CD=#originalStatus#
+</update>
+
+
+<!--		Configuration for UPDATE_SUBSCRIBER_IDENTITY_BY_REQUEST_REF_AND_SOURCE_ID		-->
+<update id="update_subscriber_identity_by_request_ref_and_source_id" parameterClass="java.util.Map">
+  	update CUSTOMER_IDENTITY_PROFILE
+	set IDNTY_PROFL_STATUS_CD = #newStatus:VARCHAR:NONE#,
+		<isNotNull property="effectiveStartDate">
+			EFF_START_DT = #effectiveStartDate:TIMESTAMP#,
+		</isNotNull>
+		<isNotNull property="effectiveEndDate">
+			EFF_END_DT = #effectiveEndDate:TIMESTAMP#,
+		</isNotNull>
+		<isNull property="effectiveEndDate">
+			EFF_END_DT = NULL,
+		</isNull>
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where IDNTY_PROFL_STATUS_CD=#originalStatus#
+		AND ORIG_CUST_RQST_MASTER_SRC_ID= #masterRequestSourceId#
+		AND ORIG_CUST_RQST_KEY_ID = #masterRequestRef#
+</update>
+
+<!--		Configuration for UPDATE_SUBSCRIBER_IDENTITY_WITH_PARAM_BY_REQUEST_REF		-->
+<update id="update_subscriber_identity_with_param_by_request_ref" parameterClass="java.util.Map">
+  	update CUSTOMER_IDENTITY_PROFILE
+	set IDNTY_PROFL_STATUS_CD = #newStatus:VARCHAR:NONE#,
+		EFF_START_DT = #effectiveStartDate:TIMESTAMP#,
+		EFF_END_DT = NULL,
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#,
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef#
+	where CUSTOMER_IDENTITY_PROFL_ID = 
+		(select A.CUSTOMER_IDENTITY_PROFL_ID 
+			from CUSTOMER_IDENTITY_PROFILE A,
+				 IDENTITY_PROFILE_PARAMETER B
+			where   A.SUBSCRBR_PRIM_RESRC_ID = #resourceId# 
+				AND A.CUSTOMER_IDENTITY_PROFL_ID = B.CUSTOMER_IDENTITY_PROFL_ID
+				AND B.IDNTY_PROFL_PARM_NM = #parameterName#
+				AND B.IDNTY_PROFL_PARM_VAL_TXT = #parameterValue#
+				AND B.ORIG_CUST_RQST_MASTER_SRC_ID= #masterRequestSourceId#
+				AND B.ORIG_CUST_RQST_KEY_ID = #lastMasterRequestRef#
+		)
+		AND IDNTY_PROFL_STATUS_CD=#originalStatus#
+</update>
+
+
+<!--  t832008 - CR6609  -->
+<!--		Configuration for STAT_ID_UPDATE_IDENTITY_STATUS_WITH_PARAM_BY_PRIMARY_RESOURCE_ID		-->
+<update id="update_identity_status_with_param_by_primary_resource_id" parameterClass="java.util.Map">
+  	update CUSTOMER_IDENTITY_PROFILE
+	set IDNTY_PROFL_STATUS_CD = #newStatus:VARCHAR:NONE#,
+		EFF_START_DT = #effectiveStartDate:TIMESTAMP#,
+		EFF_END_DT = NULL,
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where CUSTOMER_IDENTITY_PROFL_ID = 
+		(select A.CUSTOMER_IDENTITY_PROFL_ID 
+			from CUSTOMER_IDENTITY_PROFILE A,
+				 IDENTITY_PROFILE_PARAMETER B
+			where   A.SUBSCRBR_PRIM_RESRC_ID = #resourceId# 
+				AND A.CUSTOMER_IDENTITY_PROFL_ID = B.CUSTOMER_IDENTITY_PROFL_ID
+				AND B.IDNTY_PROFL_PARM_NM = #parameterName#
+				AND B.IDNTY_PROFL_PARM_VAL_TXT = #parameterValue#
+		)
+		AND IDNTY_PROFL_STATUS_CD=#originalStatus#
+</update>
+
+
+<!--  t832008 - CR6609  -->
+<!--		Configuration for STAT_ID_UPDATE_IDENTITY_STATUS_WITH_PARAM_BY_IDENTITY_ID		-->
+<update id="update_identity_status_with_param_by_identity_id" parameterClass="java.util.Map">
+  	update CUSTOMER_IDENTITY_PROFILE
+	set IDNTY_PROFL_STATUS_CD = #newStatus:VARCHAR:NONE#,
+		EFF_START_DT = #effectiveStartDate:TIMESTAMP#,
+		EFF_END_DT = NULL,
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where CUSTOMER_IDENTITY_PROFL_ID = 
+		(select A.CUSTOMER_IDENTITY_PROFL_ID 
+			from CUSTOMER_IDENTITY_PROFILE A,
+				 IDENTITY_PROFILE_PARAMETER B
+			where   A.SUBSCRBR_PRIM_RESRC_ID = #resourceId# 
+				AND A.CUSTOMER_IDENTITY_PROFL_ID = B.CUSTOMER_IDENTITY_PROFL_ID
+				AND B.IDNTY_PROFL_PARM_NM = #parameterName#
+				AND B.IDNTY_PROFL_PARM_VAL_TXT = #parameterValue#
+		)
+		AND IDNTY_PROFL_STATUS_CD=#originalStatus#
+</update>
+
+<!--		Configuration for INSERT_SUBSCRIBER_IDENTITY_PROFILE		-->
+<insert id="insert_subscriber_identity_profile" parameterClass="java.util.Map">
+  <selectKey resultClass="long" keyProperty="identity.id">
+	select CUSTOMER_IDENTITY_PROFL_ID_SEQ.NEXTVAL from dual
+  </selectKey>
+  insert into CUSTOMER_IDENTITY_PROFILE 
+  	(	
+  	CUSTOMER_IDENTITY_PROFL_ID, 
+	CUSTOMER_ID, 
+	IDNTY_ROLE_CD, 
+	IDNTY_PROFL_STATUS_CD, 
+	SUBSCRBR_PRIM_RESRC_ID,
+	EFF_START_DT, 
+	EFF_END_DT, 
+	ORIG_CUST_RQST_MASTER_SRC_ID, 
+	ORIG_CUST_RQST_KEY_ID,	
+	CREATE_TS, 
+	CREATE_USER_ID, 
+	LAST_UPDT_TS, 
+	LAST_UPDT_USER_ID,
+	DATA_SRC_ID,
+	MASTER_SOURCE_ID 
+ 	) 
+  values 
+    (
+	#identity.id#, 
+	#identity.customerId:NUMERIC#,
+	'S', 
+	#identity.statusCode:VARCHAR:NONE#,
+	#identity.resourceId:NUMERIC#,
+	#identity.effectiveStartDate:TIMESTAMP#,
+	#identity.effectiveEndDate:TIMESTAMP#,
+	#identity.masterRequestSourceId:NUMERIC#,
+	#identity.masterRequestRef:VARCHAR:NONE#,
+	current_timestamp,
+	#userId:VARCHAR:NONE#,
+	current_timestamp,
+	#userId:VARCHAR:NONE#,
+	#sourceId:NUMERIC#,
+	#masterSourceId:NUMERIC#
+	)
+</insert>
+
+<!--		Configuration for INSERT_SUBSCRIBER_IDENTITY_PROFILE_WITH_ID		-->
+<insert id="insert_subscriber_identity_profile_with_id" parameterClass="java.util.Map">
+  insert into CUSTOMER_IDENTITY_PROFILE 
+  	(	
+	  	CUSTOMER_IDENTITY_PROFL_ID, 
+		CUSTOMER_ID, 
+		IDNTY_ROLE_CD, 
+		IDNTY_PROFL_STATUS_CD, 
+		SUBSCRBR_PRIM_RESRC_ID,
+		EFF_START_DT, 
+		EFF_END_DT, 
+		ORIG_CUST_RQST_MASTER_SRC_ID, 
+		ORIG_CUST_RQST_KEY_ID,	
+		CREATE_TS, 
+		CREATE_USER_ID, 
+		LAST_UPDT_TS, 
+		LAST_UPDT_USER_ID,
+		DATA_SRC_ID,
+		MASTER_SOURCE_ID
+ 	) 
+  values 
+    (
+		#identity.id#, 
+		#identity.customerId:NUMERIC#,
+		'S', 
+		#identity.statusCode:VARCHAR:NONE#,
+		#identity.resourceId:NUMERIC#,
+		#identity.effectiveStartDate:TIMESTAMP#,
+		#identity.effectiveEndDate:TIMESTAMP#,
+		#identity.masterRequestSourceId:NUMERIC#,
+		#identity.masterRequestRef:VARCHAR:NONE#,
+		current_timestamp,
+		#userId:VARCHAR:NONE#,
+		current_timestamp,
+		#userId:VARCHAR:NONE#,
+		#sourceId:NUMERIC#,
+		#masterSourceId:NUMERIC#
+	)
+</insert>
+
+<delete id="delete_subscriber_ident_by_cust_rqst_id"  parameterClass="java.util.Map">
+	delete from CUSTOMER_IDENTITY_PROFILE 
+	where 
+		CUSTOMER_IDENTITY_PROFL_ID = #customerProfileId# AND
+		ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef# 
+</delete>
+
+<delete id="delete_subscriber_ident_by_cust_profile_id"  parameterClass="java.util.Map">
+	delete from CUSTOMER_IDENTITY_PROFILE 
+	where 
+		CUSTOMER_IDENTITY_PROFL_ID = #customerProfileId#
+</delete>
+
+<delete id="delete_obsolete_versions_identities"  parameterClass="java.util.Map">
+	delete from CUSTOMER_IDENTITY_PROFILE 
+	where 
+		ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+    	        ORIG_CUST_RQST_KEY_ID <![CDATA[>=]]> TO_CHAR(#masterRequestRefNumPart#) AND
+		ORIG_CUST_RQST_KEY_ID <![CDATA[<=]]> TO_CHAR(#masterRequestRefUpperLimit#) AND		
+		NOT ORIG_CUST_RQST_KEY_ID = #masterRequestRef# AND
+		IDNTY_PROFL_STATUS_CD ='P' 
+</delete>
+
+<select id="get_ceased_subscriber_identity_profiles_by_resource_id_full" 
+	resultMap="result_ceased_subscriber_identity_profile_full" 
+		parameterClass="java.lang.Long">
+	Select 
+	CUSTOMER_IDENTITY_PROFL_ID ,
+	CUSTOMER_ID ,
+	IDNTY_PROFL_STATUS_CD,
+	SUBSCRBR_PRIM_RESRC_ID,
+	EFF_START_DT,
+	EFF_END_DT,
+	ORIG_CUST_RQST_MASTER_SRC_ID,
+	ORIG_CUST_RQST_KEY_ID
+	
+	From
+		Customer_identity_profile 
+	where 
+		SUBSCRBR_PRIM_RESRC_ID = #value#
+	and 
+		IDNTY_PROFL_STATUS_CD = 'C'			
+		and   EFF_END_DT = 
+  			(select max(EFF_END_DT) from CUSTOMER_IDENTITY_PROFILE where SUBSCRBR_PRIM_RESRC_ID = #value# 
+  	 		and IDNTY_PROFL_STATUS_CD = 'C'
+  			)
+</select>
+
+
+<!--		Configuration for GET_SUBSCRIBER_IDENTITY_PROFILES_BY_RESOURCE_ID_FULL_ALL_STATE		-->
+<select id="get_subscriber_identity_profiles_by_resource_id_full_with_all_state" 
+	resultMap="result_subscriber_identity_profile_full_all_state" 
+		parameterClass="java.lang.Long">
+	Select 
+		CUSTOMER_IDENTITY_PROFL_ID,
+		CUSTOMER_ID ,
+		IDNTY_PROFL_STATUS_CD,
+		SUBSCRBR_PRIM_RESRC_ID,
+		EFF_START_DT,
+		EFF_END_DT,
+		ORIG_CUST_RQST_MASTER_SRC_ID,
+		ORIG_CUST_RQST_KEY_ID,
+		LAST_UPDT_TS
+	From
+	Customer_identity_profile 
+		where SUBSCRBR_PRIM_RESRC_ID = #value#
+  	order by 
+  		IDNTY_PROFL_STATUS_CD asc				
+</select>
+
+
+
+<!--		Configuration for GET_SUBSCRIBER_IDENTITY_PROFILES_BY_REQUEST_REF_NUM_PART		-->
+<select id="get_subscriber_identity_profiles_by_request_ref_num_part"
+		resultMap="result_subscriber_identity_profile"
+		parameterClass="java.util.Map">
+	Select
+		CUSTOMER_IDENTITY_PROFL_ID ,
+		CUSTOMER_ID ,
+		IDNTY_PROFL_STATUS_CD,
+		SUBSCRBR_PRIM_RESRC_ID,
+		EFF_START_DT,
+		EFF_END_DT,
+		ORIG_CUST_RQST_MASTER_SRC_ID,
+		ORIG_CUST_RQST_KEY_ID,
+		LAST_UPDT_TS
+	From
+		CUSTOMER_IDENTITY_PROFILE
+	Where  		
+		ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+ 	    ORIG_CUST_RQST_KEY_ID <![CDATA[>=]]> TO_CHAR(#masterRequestRefNumPart#) AND
+		ORIG_CUST_RQST_KEY_ID <![CDATA[<=]]> TO_CHAR(#masterRequestRefUpperLimit#)
+  	order by 
+  		IDNTY_PROFL_STATUS_CD asc		
+</select>
+
+
+<!--  Carl Chen, Aug 4, 2006 -->
+<!--	Configuration for UPADATE_SUBSCRIBER_IDENTITY_PROFILE_BY_ID	-->
+<update id="update_subscriber_identity_profile_by_id" parameterClass="java.util.Map">
+	update CUSTOMER_IDENTITY_PROFILE
+	set 
+		CUSTOMER_ID = #identity.customerId:NUMERIC#, 
+		IDNTY_PROFL_STATUS_CD = #identity.statusCode:VARCHAR:NONE#, 
+		SUBSCRBR_PRIM_RESRC_ID = #identity.resourceId:NUMERIC#,
+		EFF_START_DT = #identity.effectiveStartDate:TIMESTAMP#,
+		EFF_END_DT = #identity.effectiveEndDate:TIMESTAMP#,
+		ORIG_CUST_RQST_MASTER_SRC_ID = #identity.masterRequestSourceId:NUMERIC#, 
+		ORIG_CUST_RQST_KEY_ID = #identity.masterRequestRef:VARCHAR:NONE#,	
+		LAST_UPDT_TS = current_timestamp, 
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#,
+		DATA_SRC_ID = #sourceId:NUMERIC#
+	where CUSTOMER_IDENTITY_PROFL_ID = #identity.id# 
+		And
+		#identity.lastUpdateTimestamp# > LAST_UPDT_TS
+</update>
+
+
+</sqlMap>
+

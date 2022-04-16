@@ -1,0 +1,721 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="customerods">
+
+	<resultMap id="productInstance" class="com.telus.cmo.informationmgmt.customerods.ProductInstanceExt" groupBy="productInstanceId">
+		<result property="customerId" column="customerId"/>
+		<result property="productInstanceId" column="productInstanceId"/>
+		<result property="parentProductInstanceId" column="parentProductInstanceId"/>
+		<result property="masterSourceId" column="masterSourceId"/>
+		<result property="keyId" column="keyId"/>
+		<result property="productTypeCode" column="productTypeCode"/>
+		<result property="statusCode" column="statusCode"/>
+		<result property="effectiveStartDate" column="effectiveStartDate" />
+		<result property="activationDate" column="activationDate" />
+		<result property="statusDate" column="statusDate" />
+		<result property="primaryInterchangeCarrierStatusCode" column="picStatusCode"/>
+		<result property="customerHierarchyNodeId" column="customerHierarchyNodeId"/>
+		<result property="defaultRecurringChargePayChannelId" column="defaultRCPayChannelId"/>
+		<result property="defaultOnetimeChargePayChannelId" column="defaultOCPayChannelId"/>
+		<result property="unitQuantity" column="unitQuantity"/>
+		<result property="unitOfMeasure" column="unitOfMeasure"/>
+		<result property="productCatalogId" column="productCatalogId"/>
+		<result property="longBrandId" column="longBrandId"/>
+		<result property="primaryServiceResourceTypeCode" column="primaryServiceResourceTypeCode"/>
+		<result property="primaryServiceResourceValue" column="primaryServiceResourceValue"/>
+		<result property="billingAccountNumber" column="billingAccountNumber"/>
+		<result property="billingMasterSourceId" column="billingMasterSourceId"/>	
+		<result property="productName" column="productName"/>	
+		<result property="partialSuspendIndicatorCode" column="partialSuspendIndicatorCode"/>
+		<result property="componentSubscriptionKeyId" column="componentSubscriptionKeyId"/>
+		<result property="orderMasterSourceId" column="orderMasterSourceId"/>
+		<result property="orderActionReferenceNum" column="orderActionReferenceNum"/>
+		<result property="pricePlanSubscriptionKeyId" column="pricePlanSubscriptionKeyId"/>	
+		<result property="statusUpdateDate" column="statusUpdateDate"/>
+		<result property="effectiveEndDate" column="effectiveEndDate"/>
+		<result property="address" resultMap="customerods.productInstanceAddressAssignment"/>
+		<result property="productResourceList" resultMap="customerods.productResource"/>
+		<result property="productParameterList" resultMap="customerods.productParameter"/>
+	</resultMap>
+	
+	<!--QC82125  -->
+	<resultMap id="customerSubscription" class="com.telus.cmo.informationmgmt.domain.ProductInstance" groupBy="productInstanceId">
+		<result property="customerId" column="customerId"/>
+		<result property="productInstanceId" column="productInstanceId"/>
+		<result property="parentProductInstanceId" column="parentProductInstanceId"/>
+		<result property="masterSourceId" column="masterSourceId"/>
+		<result property="keyId" column="keyId"/>
+		<result property="productTypeCode" column="productTypeCode"/>
+		<result property="statusCode" column="statusCode"/>
+		<result property="effectiveStartDate" column="effectiveStartDate" />
+		<result property="statusDate" column="statusDate" />
+		<result property="unitQuantity" column="unitQuantity"/>
+		<result property="unitOfMeasure" column="unitOfMeasure"/>
+		<result property="productCatalogId" column="productCatalogId"/>
+		<result property="componentSubscriptionKeyId" column="componentSubscriptionKeyId"/>
+		<result property="orderMasterSourceId" column="orderMasterSourceId"/>
+		<result property="orderActionReferenceNum" column="orderActionReferenceNum"/>
+		<result property="pricePlanSubscriptionKeyId" column="pricePlanSubscriptionKeyId"/>	
+		<result property="effectiveEndDate" column="effectiveEndDate"/>
+	</resultMap>
+	
+	<resultMap id="productInstanceAddressAssignment" class="com.telus.cmo.informationmgmt.domain.Address" groupBy="addressId">
+		<result property="addressAssignmentTypeCode" column="addressAssignmentTypeCode"/>
+		<result property="addrAssgnmtId" column="addrAssgnmtId"/>
+        <result property="addressId" column="addressId"/>
+        <result property="addressTypeCode" column="addressTypeCode"/>
+        <result property="unitNumber" column="unitNumber"/>
+        <result property="civicNumber" column="civicNumber"/>
+        <result property="civicNumberSuffix" column="civicNumberSuffix"/>
+        <result property="streetName" column="streetName"/>
+        <result property="streetTypeCode" column="streetTypeCode"/>
+        <result property="streetDirectionCode" column="streetDirectionCode"/>
+        <result property="municipalityName" column="municipalityName"/>
+        <result property="provinceStateCode" column="provinceStateCode"/>
+        <result property="postalZipCode" column="postalZipCode"/>
+        <result property="countryCode" column="countryCode"/>
+        <result property="externalServiceAddressId" column="externalServiceAddressId"/>
+        <result property="additionalAddressInformation" column="additionalAddressInfo" typeHandler="com.telus.cmo.informationmgmt.customerods.dao.ListCallbackHandler"/> 
+        <result property="masterSourceId" column="masterSourceId"/>      
+    </resultMap>
+    	
+    <resultMap id="productResource" class="com.telus.cmo.informationmgmt.domain.ProductResource" groupBy="productResourceId">
+    	<result property="productResourceId" column="productResourceId"/>
+    	<result property="productInstanceId" column="resourceProductInstanceId"/>
+    	<result property="resourceTypeCode" column="resourceTypeCode"/>
+    	<result property="resourceValueId" column="resourceValueId"/> 	
+    	<result property="productResourceName" column="productResourceName"/>
+    	<result property="effectiveStartDate" column="prodResrcEffectiveStartDate"/>
+    	<result property="effectiveEndDate" column="prodResrcEffectiveEndDate"/>	
+    	<result property="masterSourceId" column="prodResrcMasterSrcId"/>
+    </resultMap>
+    
+	<resultMap id="productParameter" class="com.telus.cmo.informationmgmt.domain.ProductParameter" groupBy="productParameterId">
+		<result property="productParameterId" column="productParameterId"/>
+		<result property="productInstanceId" column="parameterProductInstanceId"/>
+		<result property="parameterName" column="parameterName"/>
+		<result property="parameterValue" column="parameterValue"/>
+		<result property="agreementId" column="custSubAgreementId"/>	
+		<result property="masterSourceId" column="prodParameterMasterSrcId"/>
+	</resultMap>
+	
+	<resultMap id="productParameterForAgreement" class="com.telus.cmo.informationmgmt.domain.ProductParameter" groupBy="productParameterId">
+		<result property="productParameterId" column="productParameterId2"/>
+		<result property="productInstanceId" column="parameterProductInstanceId2"/>
+		<result property="parameterName" column="parameterName2"/>
+		<result property="parameterValue" column="parameterValue2"/>
+		<result property="agreementId" column="custSubGrpAgreementId"/>
+		<result property="masterSourceId" column="prodParameterMasterSrcId2"/>
+	</resultMap>
+	
+	<resultMap id="agreement" class="com.telus.cmo.informationmgmt.domain.Agreement" groupBy="agreementId">
+		<result property="agreementId" column="agreementId"/>
+		<result property="customerId" column="customerId"/>
+		<result property="agreementKeyId" column="agreementKeyId"/>
+		<result property="customerHierarchyNodeId" column="customerHierarchyNodeId"/>
+		<result property="agreementDescription" column="agreementDescription"/>
+		<result property="effectiveStartDate" column="effStartDt"/>
+		<result property="effectiveEndDate" column="effEndDt"/>
+		<result property="productParameterList" resultMap="customerods.productParameterForAgreement"/>
+		<result property="productInstanceList" resultMap="customerods.productInstance"/>
+		<result property="masterSourceId" column="subGroupMasterSrcId"/>
+	</resultMap>
+	
+	<resultMap id="customerSubscriptionAssignment" class="com.telus.cmo.informationmgmt.customerods.CustomerSubscriptionAssignment">
+		<result property="custSubscrptnAsgnmtId" column="CUST_SUBSCRPTN_ASGNMT_ID"/>
+		<result property="customerId" column="CUSTOMER_ID"/>
+        <result property="custSubscriptionId" column="CUST_SUBSCRPTN_ID"/>
+        <result property="mostRecentInd" column="MOST_RECENT_IND"/>
+        <result property="effStartDt" column="EFF_START_DT"/>
+        <result property="effEndDt" column="EFF_END_DT"/>
+        <result property="createTs" column="CREATE_TS"/>
+        <result property="createUserId" column="CREATE_USER_ID"/>
+        <result property="lastUpdtTs" column="LAST_UPDT_TS"/>
+        <result property="lastUpdtUserId" column="LAST_UPDT_USER_ID"/>
+    </resultMap>
+	
+	<!-- QC82125 -->
+    <resultMap id="productName" class="java.util.HashMap">
+    	<result property="key" column="productCatalogId" jdbcType="NUMBER" javaType="java.lang.Long"/>
+		<result property="value" column="productName"/>
+	</resultMap>	
+
+	<!--Add for QC82125 -->
+	<select id="service_get_service_instance_composite_by_customer_id" 
+			resultClass="com.telus.cmo.informationmgmt.customerods.ProductInstanceExt" 
+			parameterClass="long">
+		Select 
+		si.SERVICE_INSTANCE_ID as productInstanceId, 
+		si.SRVC_INSTNC_MASTER_SRC_ID as masterSourceId, 
+		si.SRVC_INSTNC_KEY_ID as keyId, 
+		si.CUSTOMER_ID as	customerId, 
+		si.SRVC_INSTNC_TYPE_CD as productTypeCode,
+		si.SRVC_INSTNC_ACTVN_DT as activationDate, 
+		si.SRVC_INSTNC_STAT_CD as statusCode, 
+		si.SRVC_INSTNC_STAT_DT as statusDate,
+		si.SRVC_INSTNC_STATUS_UPD_DT as statusUpdateDate,
+		si.PRIM_SRVC_RESRC_TYPE_CD as primaryServiceResourceTypeCode,
+		si.PRIM_SRVC_RESRC_VAL_ID as primaryServiceResourceValue,
+		si.PIC_STATUS_CD as picStatusCode, 
+		si.DFLT_RC_PAY_CHANNEL_ID as defaultRCPayChannelId, 
+		si.DFLT_OC_PAY_CHANNEL_ID as defaultOCPayChannelId, 
+		si.CUST_HIER_NODE_ID as customerHierarchyNodeId,
+		si.PARTIAL_SUSPEND_IND as partialSuspendIndicatorCode,
+		si.BRAND_ID as longBrandId,
+		bac.BILLING_ACCOUNT_NUM as billingAccountNumber,
+		bac.BILLING_MASTER_SRC_ID as billingMasterSourceId
+		
+		From 
+		SERVICE_INSTANCE	si 
+		inner join PAY_CHANNEL pc
+            	on si.DFLT_RC_PAY_CHANNEL_ID = pc.PAY_CHANNEL_ID
+        inner join BILLING_ARRANGEMENT bar
+            	on pc.BILLING_ARRANGEMENT_ID = bar.BILLING_ARRANGEMENT_ID 
+		inner join BILLING_ACCOUNT bac
+				on bar.BILLING_ACCOUNT_ID = bac.BILLING_ACCOUNT_ID
+		
+		where si.CUSTOMER_ID= #value#
+		and SRVC_INSTNC_STAT_CD <![CDATA[<>]]> 'C'
+		and SRVC_INSTNC_STAT_CD <![CDATA[<>]]> 'L'
+		and SRVC_INSTNC_STAT_CD <![CDATA[<>]]> 'T'
+		and si.SRVC_INSTNC_MASTER_SRC_ID <![CDATA[<>]]> 119
+	</select>
+	
+	<!--Add for CR13476 -->
+	<select id="service_get_products_by_customer_id_status_date_and_status_codes" 
+			resultClass="com.telus.cmo.informationmgmt.customerods.ProductInstanceExt" 
+			parameterClass="java.util.Map">
+		Select 
+		SERVICE_INSTANCE_ID as productInstanceId, 
+		SRVC_INSTNC_MASTER_SRC_ID as masterSourceId, 
+		SRVC_INSTNC_KEY_ID as keyId, 
+		CUSTOMER_ID as	customerId, 
+		SRVC_INSTNC_TYPE_CD as productTypeCode,
+		SRVC_INSTNC_ACTVN_DT as activationDate, 
+		SRVC_INSTNC_STAT_CD as statusCode, 
+		SRVC_INSTNC_STAT_DT as statusDate,
+		SRVC_INSTNC_STATUS_UPD_DT as statusUpdateDate,
+		PRIM_SRVC_RESRC_TYPE_CD as primaryServiceResourceTypeCode,
+		PRIM_SRVC_RESRC_VAL_ID as primaryServiceResourceValue,
+		PIC_STATUS_CD as picStatusCode, 
+		DFLT_RC_PAY_CHANNEL_ID as defaultRCPayChannelId, 
+		DFLT_OC_PAY_CHANNEL_ID as defaultOCPayChannelId, 
+		CUST_HIER_NODE_ID as customerHierarchyNodeId,
+		PARTIAL_SUSPEND_IND as partialSuspendIndicatorCode,
+		BRAND_ID as longBrandId,
+		bac.BILLING_ACCOUNT_NUM as billingAccountNumber,
+		bac.BILLING_MASTER_SRC_ID as billingMasterSourceId
+		
+		From 
+		SERVICE_INSTANCE	si 
+		inner join PAY_CHANNEL pc
+            	on si.DFLT_RC_PAY_CHANNEL_ID = pc.PAY_CHANNEL_ID
+        inner join BILLING_ARRANGEMENT bar
+            	on pc.BILLING_ARRANGEMENT_ID = bar.BILLING_ARRANGEMENT_ID 
+		inner join BILLING_ACCOUNT bac
+				on bar.BILLING_ACCOUNT_ID = bac.BILLING_ACCOUNT_ID
+		
+		where si.CUSTOMER_ID= #customerId#
+			  and <iterate property="statusCodes" open="SRVC_INSTNC_STAT_CD IN (" close=")" conjunction=","> #statusCodes[]# </iterate>		
+			  and si.SRVC_INSTNC_MASTER_SRC_ID <![CDATA[<>]]> 119
+			  and SRVC_INSTNC_STAT_DT <![CDATA[>=]]> #statusDate#
+			  and <![CDATA[ rowNum <= #searchResultMaxLimit# + 1 ]]>
+	    order by SRVC_INSTNC_STAT_DT desc
+	</select>
+	
+	<!--QC82125		Configuration for GET_CUST_SUBS_BY_SERVICE_INSTANCE_IDS	-->
+	<select id="service_get_cust_subs_by_service_instance_ids"
+		resultMap="customerSubscription"
+		parameterClass="java.util.List">
+		Select 
+		csub.SERVICE_RECIP_CUSTOMER_ID as customerId,
+		csub.CUST_SUBSCRPTN_ID as productInstanceId,
+		csub.CUST_SUBSCRPTN_MASTER_SRC_ID as masterSourceId,
+		csub.CUST_SUBSCRPTN_KEY_ID as keyId,
+		csub.SERVICE_INSTANCE_ID as parentProductInstanceId,
+		Nvl(csub.CUST_SUBSCRPTN_GRP_ID,0) as agreementId,
+		csub.SUBSCRPTN_TYPE_CD as productTypeCode,
+		csub.PROD_CATLG_ITM_ID as productCatalogId,
+		csub.SUBSCRPTN_STATUS_CD as statusCode, 
+		csub.SUBSCRPTN_STATUS_DT as	statusDate, 
+		Nvl(csub.UNIT_QTY, 0) as unitQuantity, 
+		csub.UNIT_UOM_CD	as unitOfMeasure, 
+		Nvl(csub.ORD_MASTER_SRC_ID, 0) as	orderMasterSourceId, 
+		csub.ORD_ACT_REF_NUM as orderActionReferenceNum,
+		csub.EFF_START_DT as effectiveStartDate, 
+		csub.EFF_END_DT as effectiveEndDate, 
+		csub.PRICE_PLAN_SUBSCRPTN_KEY_ID as pricePlanSubscriptionKeyId, 
+		csub.CMPNT_SUBSCRPTN_KEY_ID as componentSubscriptionKeyId
+		From 
+		CUSTOMER_SUBSCRIPTION csub 
+		
+		where SERVICE_INSTANCE_ID in
+		<iterate open="(" close=")" conjunction=",">#serviceInstanceIds[]#</iterate>
+		and ((CUST_SUBSCRPTN_MASTER_SRC_ID = 1001 and SUBSCRPTN_STATUS_CD <![CDATA[<>]]> 'C')
+			or (CUST_SUBSCRPTN_MASTER_SRC_ID = 130 and NVL(EFF_END_DT, SYSDATE + 1) > SYSDATE))
+	</select>
+	
+	<!--CR13476		Configuration for GET_ALL_CUST_SUBS_BY_SERVICE_INSTANCE_IDS	-->
+	<select id="service_get_cust_subs_by_service_instance_ids_status_codes_and_status_date"
+		resultMap="customerSubscription"
+		parameterClass="java.util.Map">
+		Select 
+		csub.SERVICE_RECIP_CUSTOMER_ID as customerId,
+		csub.CUST_SUBSCRPTN_ID as productInstanceId,
+		csub.CUST_SUBSCRPTN_MASTER_SRC_ID as masterSourceId,
+		csub.CUST_SUBSCRPTN_KEY_ID as keyId,
+		csub.SERVICE_INSTANCE_ID as parentProductInstanceId,
+		Nvl(csub.CUST_SUBSCRPTN_GRP_ID,0) as agreementId,
+		csub.SUBSCRPTN_TYPE_CD as productTypeCode,
+		csub.PROD_CATLG_ITM_ID as productCatalogId,
+		csub.SUBSCRPTN_STATUS_CD as statusCode, 
+		csub.SUBSCRPTN_STATUS_DT as	statusDate, 
+		Nvl(csub.UNIT_QTY, 0) as unitQuantity, 
+		csub.UNIT_UOM_CD	as unitOfMeasure, 
+		Nvl(csub.ORD_MASTER_SRC_ID, 0) as	orderMasterSourceId, 
+		csub.ORD_ACT_REF_NUM as orderActionReferenceNum,
+		csub.EFF_START_DT as effectiveStartDate, 
+		csub.EFF_END_DT as effectiveEndDate, 
+		csub.PRICE_PLAN_SUBSCRPTN_KEY_ID as pricePlanSubscriptionKeyId, 
+		csub.CMPNT_SUBSCRPTN_KEY_ID as componentSubscriptionKeyId
+		From 
+		CUSTOMER_SUBSCRIPTION csub 
+		
+		where <iterate property="serviceInstanceIds" open="SERVICE_INSTANCE_ID IN (" close=")" conjunction=","> #serviceInstanceIds[]# </iterate>
+		and (CUST_SUBSCRPTN_MASTER_SRC_ID = 1001 				
+			or (CUST_SUBSCRPTN_MASTER_SRC_ID = 130 and NVL(EFF_END_DT, SYSDATE + 1) > SYSDATE))
+		and <iterate property="statusCodes" open="SUBSCRPTN_STATUS_CD IN (" close=")" conjunction=","> #statusCodes[]# </iterate>		
+		and SUBSCRPTN_STATUS_DT <![CDATA[>=]]> #statusDate#
+	</select>
+
+	<!--QC82125		Configuration for GET_PRODUCT_NAME_BY_PRODUCT_CATALOG_IDS	-->
+	<select id="service_get_product_name_by_prod_catalog_ids"
+		resultMap="productName"
+		parameterClass="java.util.List">
+		Select 
+		PROD_CATLG_ITM_ID as productCatalogId,
+		PROD_NM as productName
+		From 
+			PRODUCT_NAME
+		
+		where LANG_CD = 'EN' and
+		PROD_CATLG_ITM_ID in
+		<iterate open="(" close=")" conjunction=",">#prodCatalogIds[]#</iterate>
+
+	</select>
+	
+	<select id="service_get_subscription_group_by_customer_id" resultMap="agreement" parameterClass="long">
+	 Select
+		c.CUSTOMER_ID as customerId,
+		csg.CUST_SUBSCRPTN_GRP_ID as agreementId,
+		csg.CUST_SUBSCRPTN_GRP_KEY_ID as agreementKeyId,
+		csg.CUST_HIER_NODE_ID as customerHierarchyNodeId,
+		csg.SUBSCRPTN_GRP_DESC as agreementDescription,
+		csg.EFF_START_DT as effStartDt,
+		csg.EFF_END_DT as effEndDt,
+		csg.SUBSCRPTN_GRP_MASTER_SRC_ID as subGroupMasterSrcId,
+		cs.CUST_SUBSCRPTN_ID as productInstanceId,   
+        cs.CUST_SUBSCRPTN_GRP_ID as parentProductInstanceId, 
+        cs.CUST_SUBSCRPTN_MASTER_SRC_ID as masterSourceId,
+        cs.CUST_SUBSCRPTN_KEY_ID as keyId, 
+        cs.SUBSCRPTN_TYPE_CD as productTypeCode,  
+        cs.SUBSCRPTN_STATUS_CD as statusCode,  
+        cs.EFF_START_DT as effectiveStartDate, 
+        NULL as activationDate,
+        cs.SUBSCRPTN_STATUS_DT as statusDate,   
+        NULL as picStatusCode, 
+        NULL as customerHierarchyNodeId, 
+        NULL as defaultRCPayChannelId, 
+        NULL as defaultOCPayChannelId,      
+        cs.UNIT_QTY as unitQuantity, 
+        cs.UNIT_UOM_CD as unitOfMeasure, 
+        cs.PROD_CATLG_ITM_ID as productCatalogId, 
+        NULL as primaryServiceResourceTypeCode, 
+        0 as longBrandId,
+        NULL as primaryServiceResourceValue,
+        NULL as partialSuspendIndicatorCode,
+        cs.CMPNT_SUBSCRPTN_KEY_ID as componentSubscriptionKeyId,
+        cs.ORD_MASTER_SRC_ID as orderMasterSourceId,
+        cs.ORD_ACT_REF_NUM as orderActionReferenceNum,
+        cs.PRICE_PLAN_SUBSCRPTN_KEY_ID as pricePlanSubscriptionKeyId,    
+        NULL as statusUpdateDate,
+        cs.EFF_END_DT as effectiveEndDate,          
+        NULL as addressAssignmentTypeCode,
+		NULL as addrAssgnmtId,
+		NULL as addressId,
+		NULL as addressTypeCode,
+		NULL as unitNumber,
+		NULL as civicNumber,
+		NULL as civicNumberSuffix,
+		NULL as streetName,
+		NULL as streetTypeCode,
+		NULL as streetDirectionCode,
+		NULL as municipalityName,
+		NULL as provinceStateCode,
+		NULL as postalZipCode,
+		NULL as countryCode,
+		NULL as externalServiceAddressId,
+        NULL as additionalAddressInfo,
+        sr1.SERVICE_RESRC_ID as productResourceId,
+		sr1.CUST_SUBSCRPTN_ID as resourceProductInstanceId,
+		sr1.SERVICE_RESRC_TYPE_CD as resourceTypeCode,
+		sr1.SERVICE_RESRC_VAL_ID as resourceValueId,
+		sr1.RESRC_NM as productResourceName,
+		sr1.EFF_START_DT as prodResrcEffectiveStartDate,
+		sr1.EFF_END_DT as prodResrcEffectiveEndDate,
+		sr1.MASTER_SOURCE_ID as prodResrcMasterSrcId,
+		sp1.SRVC_INSTNC_PARM_ID as productParameterId,
+		sp1.CUST_SUBSCRPTN_ID as parameterProductInstanceId,
+		sp1.SRVC_PARM_NM as parameterName,
+		sp1.SRVC_PARM_VAL_TXT as parameterValue,
+		sp1.CUST_SUBSCRPTN_GRP_ID as custSubAgreementId,
+		sp1.MASTER_SOURCE_ID as prodParameterMasterSrcId,
+		sp2.SRVC_INSTNC_PARM_ID as productParameterId2,
+		NULL as parameterProductInstanceId2,
+		sp2.SRVC_PARM_NM as parameterName2,
+		sp2.SRVC_PARM_VAL_TXT as parameterValue2,
+		sp2.CUST_SUBSCRPTN_GRP_ID as custSubGrpAgreementId,
+		sp2.MASTER_SOURCE_ID as prodParameterMasterSrcId2,
+		bac.BILLING_ACCOUNT_NUM as billingAccountNumber,
+		bac.BILLING_MASTER_SRC_ID as billingMasterSourceId,
+		pn.PROD_NM as productName               
+	From 
+		CUSTOMER c
+			inner join CUSTOMER_SUBSCRIPTION_GROUP csg
+				on c.CUSTOMER_ID = csg.CUSTOMER_ID and
+				   csg.EFF_END_DT IS NULL
+			left outer join CUSTOMER_SUBSCRIPTION cs
+				on cs.CUST_SUBSCRPTN_GRP_ID = csg.CUST_SUBSCRPTN_GRP_ID and
+				   cs.SUBSCRPTN_STATUS_CD = 'A'  
+		    left outer join PRODUCT_NAME pn
+            	on pn.PROD_CATLG_ITM_ID = cs.PROD_CATLG_ITM_ID
+			left outer join SERVICE_RESOURCE sr1
+                on cs.CUST_SUBSCRPTN_ID = sr1.CUST_SUBSCRPTN_ID
+            left outer join SERVICE_PARAMETER sp1
+                on cs.CUST_SUBSCRPTN_ID = sp1.CUST_SUBSCRPTN_ID
+            left outer join SERVICE_PARAMETER sp2
+            	on csg.CUST_SUBSCRPTN_GRP_ID = sp2.CUST_SUBSCRPTN_GRP_ID and
+            	   sp2.CUST_SUBSCRPTN_ID IS NULL
+            left outer join CHARGE_EVENT_DISTRIBUTION ced
+            	on cs.CUST_SUBSCRPTN_ID = ced.CUST_SUBSCRPTN_ID
+            left outer join PAY_CHANNEL pc
+            	on ced.PAY_CHANNEL_ID = pc.PAY_CHANNEL_ID
+            left outer join BILLING_ARRANGEMENT bar
+            	on pc.BILLING_ARRANGEMENT_ID = bar.BILLING_ARRANGEMENT_ID 
+			left outer join BILLING_ACCOUNT bac
+				on bar.BILLING_ACCOUNT_ID = bac.BILLING_ACCOUNT_ID
+	where c.CUSTOMER_ID = #value#
+	and c.CUST_MASTER_SRC_ID <![CDATA[<>]]> 119
+	</select>
+	
+	<!--		Configuration for GET_SERVICE_INSTANCE_SUMMARY_BY_CUSTOMER_ID	-->
+	<select id="service_get_service_instance_summary_by_customer_id" resultClass="com.telus.cmo.informationmgmt.customermgmt.ProductInstanceSummary" parameterClass="java.util.List">
+		
+		Select 
+		si.CUSTOMER_ID as customerId, 
+		si.SERVICE_INSTANCE_ID as	productInstanceId, 
+		si.SRVC_INSTNC_TYPE_CD as	productInstanceTypeCode, 
+		si.SRVC_INSTNC_STAT_CD as	productInstanceStatusCode, 
+		si.PRIM_SRVC_RESRC_VAL_ID as	primaryServiceResourceValue, 
+		si.SRVC_INSTNC_MASTER_SRC_ID as productInstanceMasterSourceId,
+		bac.BILLING_ACCOUNT_NUM as	billingAccountNumber,
+		bac.BILLING_MASTER_SRC_ID as  billingMasterSourceId
+		
+		From 
+			SERVICE_INSTANCE si, 
+			PAY_CHANNEL	pc,
+			BILLING_ARRANGEMENT bar, 
+			BILLING_ACCOUNT bac 
+		where
+			si.DFLT_RC_PAY_CHANNEL_ID = pc.PAY_CHANNEL_ID and
+			pc.BILLING_ARRANGEMENT_ID = bar.BILLING_ARRANGEMENT_ID and
+			bar.BILLING_ACCOUNT_ID = bac.BILLING_ACCOUNT_ID and 
+			si.CUSTOMER_ID in
+			<iterate open="(" close=")" conjunction=",">#customerIdsList[]#</iterate>
+	</select>
+	
+	<!--		Configuration for GET_SERVICE_RESOURCES_BY_SERVICE_INSTANCE_IDS  -->
+	<select id="service_get_service_resources_by_service_instance_ids" 
+			resultClass="com.telus.cmo.informationmgmt.customerods.ProductResourceExt" 
+			parameterClass="java.util.List">
+		Select 
+		SERVICE_RESRC_ID as productResourceId, 
+		SERVICE_RESRC_TYPE_CD as resourceTypeCode, 
+		SERVICE_RESRC_VAL_ID as resourceValueId,
+		RESRC_NM as productResourceName, 
+		Nvl(SERVICE_INSTANCE_ID, 0) as	productInstanceId, 
+		Nvl(CUST_SUBSCRPTN_ID,0) as	customerSubscriptionId, 
+		EFF_START_DT as effectiveStartDate,
+		EFF_END_DT as effectiveEndDate,
+		MASTER_SOURCE_ID as masterSourceId
+		From SERVICE_RESOURCE 
+		
+		where SERVICE_INSTANCE_ID in
+		<iterate open="(" close=")" conjunction=",">#serviceInstanceIds[]#</iterate>
+		and NVL(EFF_END_DT, SYSDATE + 1) > SYSDATE
+		
+	</select>
+	
+	<!--Add for QC82125	-->
+	<select id="service_get_service_parameters_by_service_instance_ids"
+		resultClass="com.telus.cmo.informationmgmt.customerods.ProductParameterExt"
+		parameterClass="java.util.List">
+		Select 
+		SRVC_INSTNC_PARM_ID as productParameterId, 
+		Nvl(SERVICE_INSTANCE_ID, 0) as	productInstanceId, 
+		SRVC_PARM_NM as parameterName,
+		SRVC_PARM_VAL_TXT as parameterValue, 
+		Nvl(CUST_SUBSCRPTN_ID, 0)	as customerSubscriptionId, 
+		Nvl(CUST_SUBSCRPTN_GRP_ID, 0) as agreementId,
+		MASTER_SOURCE_ID as masterSourceId 
+		
+		From 
+		SERVICE_PARAMETER sp
+		
+		where SERVICE_INSTANCE_ID in
+		<iterate open="(" close=")" conjunction=",">#serviceInstanceIds[]#</iterate>
+		and 
+		(
+			CUST_SUBSCRPTN_ID is null or 
+			(
+				CUST_SUBSCRPTN_ID is not null and CUST_SUBSCRPTN_ID in 
+				(select CUST_SUBSCRPTN_ID from CUSTOMER_SUBSCRIPTION cs
+				 where sp.CUST_SUBSCRPTN_ID = cs.CUST_SUBSCRPTN_ID and 
+					((cs.CUST_SUBSCRPTN_MASTER_SRC_ID = 1001 and cs.SUBSCRPTN_STATUS_CD <![CDATA[<>]]> 'C') or 
+					 (cs.CUST_SUBSCRPTN_MASTER_SRC_ID = 130 and NVL(cs.EFF_END_DT, SYSDATE + 1) > SYSDATE))
+			    )
+			)
+		) 
+
+	</select>
+	
+	<!--Add for CR13476	-->
+	<select id="service_get_service_parameters_by_service_instance_ids_status_codes_and_status_date"
+		resultClass="com.telus.cmo.informationmgmt.customerods.ProductParameterExt"
+		parameterClass="java.util.Map">
+		Select 
+		SRVC_INSTNC_PARM_ID as productParameterId, 
+		Nvl(SERVICE_INSTANCE_ID, 0) as	productInstanceId, 
+		SRVC_PARM_NM as parameterName,
+		SRVC_PARM_VAL_TXT as parameterValue, 
+		Nvl(CUST_SUBSCRPTN_ID, 0)	as customerSubscriptionId, 
+		Nvl(CUST_SUBSCRPTN_GRP_ID, 0) as agreementId,
+		MASTER_SOURCE_ID as masterSourceId 
+		
+		From 
+		SERVICE_PARAMETER sp
+		
+		where <iterate property="serviceInstanceIds" open="SERVICE_INSTANCE_ID IN (" close=")" conjunction=","> #serviceInstanceIds[]# </iterate>
+		and 
+		(
+			CUST_SUBSCRPTN_ID is null or 
+			(
+				CUST_SUBSCRPTN_ID is not null and CUST_SUBSCRPTN_ID in 
+				(select CUST_SUBSCRPTN_ID from CUSTOMER_SUBSCRIPTION cs
+				 where sp.CUST_SUBSCRPTN_ID = cs.CUST_SUBSCRPTN_ID and 
+					( cs.CUST_SUBSCRPTN_MASTER_SRC_ID = 1001 or 
+					  cs.CUST_SUBSCRPTN_MASTER_SRC_ID = 130 and NVL(cs.EFF_END_DT, SYSDATE + 1) > SYSDATE) 
+					and <iterate property="statusCodes" open="cs.SUBSCRPTN_STATUS_CD IN (" close=")" conjunction=","> #statusCodes[]# </iterate>
+					and cs.SUBSCRPTN_STATUS_DT <![CDATA[>=]]> #statusDate#
+			    )
+			)
+		) 
+
+	</select>
+	
+	<select id="get_customer_product_instance_assignments_by_customer_id"
+		resultClass="com.telus.cmo.informationmgmt.customerods.CustomerProductInstanceAssignment"
+		parameterClass="long">
+		Select 
+		
+		CUST_PROD_INSTNC_ASGNMT_ID as custProdInstncAsgnmtId,
+		CUSTOMER_ID as customerId,
+		SERVICE_INSTANCE_ID as serviceInstanceId,
+		MOST_RECENT_IND as mostRecentInd,	
+		EFF_START_DT as effStartDt,
+		EFF_END_DT as effEndDt,
+		CREATE_TS as createTs,
+		CREATE_USER_ID as createUserId,
+		LAST_UPDT_TS as lastUpdtTs,
+		LAST_UPDT_USER_ID as lastUpdtUserId
+
+		From 
+		CUST_PROD_INSTNC_ASGNMT 
+		
+		where CUSTOMER_ID = #value#
+	</select>
+	 
+	<!-- Configuration for EXPIRE_CUSTOMER_PRODUCT_INSTANCE_ASSIGNMENT_BY_CUSTOMER_ID -->
+	<update id="expire_customer_product_instance_assignment_by_customer_id" parameterClass="java.util.Map">
+		UPDATE
+			CUST_PROD_INSTNC_ASGNMT
+		SET
+		    MOST_RECENT_IND = 'N',
+			EFF_END_DT = SYSDATE,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId#
+		WHERE 
+			CUSTOMER_ID = #customerId#
+			and EFF_END_DT is NULL
+	</update>
+	
+	<!-- Configuration for STAT_ID_UPDATE_CUSTOMER_SUBSCRIPTION_CUSTOMER_ID_BY_CUSTOMER_ID -->
+	<update id="service_update_customer_subscription_customer_id_by_customer_id" parameterClass="java.util.Map">
+		UPDATE
+			CUSTOMER_SUBSCRIPTION
+		SET
+		    SERVICE_RECIP_CUSTOMER_ID = #toCustomerId:NUMERIC#,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId:VARCHAR#
+		WHERE 
+			SERVICE_RECIP_CUSTOMER_ID = #customerId:NUMERIC#
+	</update>
+	
+	<!-- Configuration for STAT_ID_UPDATE_SERVICE_INSTANCE_CUSTOMER_ID_BY_CUSTOMER_ID -->
+	<update id="service_update_service_instance_customer_id_by_customer_id" parameterClass="java.util.Map">
+		UPDATE
+			SERVICE_INSTANCE
+		SET
+		    CUSTOMER_ID = #toCustomerId:NUMERIC#,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId:VARCHAR#
+		WHERE 
+			CUSTOMER_ID = #customerId:NUMERIC#
+	</update>
+
+	<!-- Configuration for INSERT_CUSTOMER_PRODUCT_INSTANCE_ASSIGNMENT -->
+	<insert id="insert_customer_product_instance_assignment" parameterClass="java.util.Map">
+	
+		<selectKey resultClass="int" keyProperty="id">
+			select CUST_PROD_INSTNC_ASGNMT_ID_SEQ.NEXTVAL AS id from dual
+		</selectKey>
+		
+		INSERT INTO	
+			CUST_PROD_INSTNC_ASGNMT
+		(
+			CUST_PROD_INSTNC_ASGNMT_ID,
+			CUSTOMER_ID,
+			SERVICE_INSTANCE_ID,
+			MOST_RECENT_IND,
+			EFF_START_DT,
+			EFF_END_DT,
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS,
+			LAST_UPDT_USER_ID
+		)
+		VALUES
+		(
+			#id#,
+			#customerProductInstanceAssignment.customerId#,
+			#customerProductInstanceAssignment.serviceInstanceId#,
+			#customerProductInstanceAssignment.mostRecentInd#,
+			SYSDATE,
+			null,				
+			SYSTIMESTAMP,
+			#auditInfo.userId#,
+			SYSTIMESTAMP,
+			#auditInfo.userId#
+		)
+	</insert>
+	
+	<!-- Configuration for STAT_ID_GET_CUSTOMER_SUBSCRIPTION_ASSIGNMENTS_BY_CUSTOMER_ID -->
+	<select id="get_customer_subscription_assignments_by_customer_id" resultMap="customerSubscriptionAssignment" parameterClass="java.lang.Long">
+		
+		SELECT 
+			CUST_SUBSCRPTN_ASGNMT_ID,
+			CUSTOMER_ID,
+			CUST_SUBSCRPTN_ID,
+			MOST_RECENT_IND,
+			EFF_START_DT,
+			EFF_END_DT,
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS,
+			LAST_UPDT_USER_ID
+		FROM
+			CUST_SUBSCRPTN_ASGNMT
+		WHERE 
+			CUSTOMER_ID = #value#	
+	</select>
+	
+	<!-- Configuration for EXPIRE_CUSTOMER_SUBSCRIPTION_ASSIGNMENT_BY_CUSTOMER_ID -->
+	<update id="expire_customer_subscription_assignment_by_customer_id" parameterClass="java.util.Map">
+		UPDATE
+			CUST_SUBSCRPTN_ASGNMT
+		SET
+		    MOST_RECENT_IND = 'N',
+			EFF_END_DT = SYSDATE,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId#
+		WHERE 
+			CUSTOMER_ID = #customerId#
+			and EFF_END_DT is NULL
+	</update>
+	
+	<!-- Configuration for STAT_ID_INSERT_CUSTOMER_SUBSCRIPTION_ASSIGNMENT -->
+	<insert id="insert_customer_subscription_assignment" parameterClass="java.util.Map">
+		
+		<selectKey resultClass="int" keyProperty="id">
+			select CUST_SUBSCRPTN_ASGNMT_ID_SEQ.NEXTVAL AS id from dual
+		</selectKey>
+		
+		INSERT INTO	
+			CUST_SUBSCRPTN_ASGNMT
+		(
+			CUST_SUBSCRPTN_ASGNMT_ID,
+			CUSTOMER_ID,
+			CUST_SUBSCRPTN_ID,
+			MOST_RECENT_IND,
+			EFF_START_DT,
+			EFF_END_DT,
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS,
+			LAST_UPDT_USER_ID
+		)
+		VALUES
+		(
+			#id#,
+			#customerSubscriptionAssignment.customerId#,
+			#customerSubscriptionAssignment.custSubscriptionId#,
+			#customerSubscriptionAssignment.mostRecentInd#,
+			SYSDATE,
+			null,				
+			SYSTIMESTAMP,
+			#auditInfo.userId#,
+			SYSTIMESTAMP,
+			#auditInfo.userId#
+		)
+	</insert>
+	
+	<select id="customer_get_customer_product_instance_assignment_by_serviceinstanceid" 
+		resultClass="com.telus.cmo.informationmgmt.customerods.CustomerProductInstanceAssignment"  
+		parameterClass="long">
+		
+		Select 
+		 cpia.CUST_PROD_INSTNC_ASGNMT_ID as custProdInstncAsgnmtId,
+		 cpia.CUSTOMER_ID as customerId,
+		 cpia.SERVICE_INSTANCE_ID as serviceInstanceId,
+		 cpia.MOST_RECENT_IND as mostRecentInd,
+		 cpia.EFF_START_DT as effStartDt,
+		 cpia.EFF_END_DT as effEndDt
+		From CUST_PROD_INSTNC_ASGNMT cpia
+		where 	cpia.SERVICE_INSTANCE_ID =  #value#
+	    		and cpia.EFF_END_DT is null	
+	</select>
+
+	
+	<update id="service_expire_customer_product_instance_assignment"
+		parameterClass="java.util.Map"> 
+  		Update CUST_PROD_INSTNC_ASGNMT
+			set
+				EFF_END_DT = SYSTIMESTAMP,
+				LAST_UPDT_TS = SYSTIMESTAMP,
+				LAST_UPDT_USER_ID = #auditInfo.userId:VARCHAR#
+				where CUST_PROD_INSTNC_ASGNMT_ID = #customerProductInstanceAssignment.custProdInstncAsgnmtId:VARCHAR#
+	</update>	
+
+</sqlMap>

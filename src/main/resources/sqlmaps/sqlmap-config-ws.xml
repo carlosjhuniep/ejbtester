@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
+	"http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+    <settings cacheModelsEnabled="false" lazyLoadingEnabled="false" useStatementNamespaces="true"/>
+    
+     <transactionManager type="JDBC" commitRequired="true"> 
+        <dataSource type="SIMPLE">
+          <property name="JDBC.Driver" 
+               value="oracle.jdbc.driver.OracleDriver"/>
+         
+          <property name="JDBC.ConnectionURL"
+               value="jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=yes) (ADDRESS_LIST= (ADDRESS= (PROTOCOL=TCP) (HOST=ODSCMPR-vip1.ent.agt.ab.ca)(PORT=41521))(ADDRESS=(PROTOCOL=TCP)(HOST=ODSCMPR-vip2.ent.agt.ab.ca)(PORT=41521)))(CONNECT_DATA=(SERVER=dedicated)(SERVICE_NAME=ODSCMPRsva) ))"/>
+               	<property name="JDBC.Username" value="APPCM_R1_PR"/>
+          		<property name="JDBC.Password" value="APPCM_R1_PR"/>
+          
+           <!-- above is prod read only -->
+          <!-- This is for AT01 -->
+          <!-- changed from SID = ODSCMAT to SERVICE_NAME = ODSCMATSV1 -->
+           <!--<property name="JDBC.ConnectionURL" value="jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=an05109.ent.agt.ab.ca)(PORT=41521))(CONNECT_DATA=(SERVICE_NAME=ODSCMATSV1)))"/>
+          <property name="JDBC.Username" value="APPCM_U1_AT01"/>
+          <property name="JDBC.Password" value="APPCM_U1_AT01"/>-->
+          <!-- <property name="JDBC.DefaultAutoCommit" value="true"/>  --><!-- need to add DefaultAutoCommit so that the updates will reflect using local! GTG Tlga! -->
+
+        </dataSource>
+      </transactionManager>
+      
+      <!-- sample connection string is: jdbc:oracle:thin:[user/password]@[host][:port]:SID -->
+      <!-- above uses service name instead of SID -->
+
+    
+    <!-- end: added manual config jem -->
+    
+	<sqlMap resource="sqlmaps/address-ws.xml" /> 
+    <sqlMap resource="sqlmaps/billingAccount-ws.xml" />
+<!--     <sqlMap resource="sqlmaps/contactIndividual-ws.xml" /> -->
+     <sqlMap resource="sqlmaps/customer-ws.xml" />
+<!--     <sqlMap resource="sqlmaps/customerHierarchy-ws.xml" /> -->
+<!--     <sqlMap resource="sqlmaps/customerMarketSegment-ws.xml" /> -->
+<!--     <sqlMap resource="sqlmaps/customerPreference-ws.xml" /> -->
+<!--     <sqlMap resource="sqlmaps/customerSubscription-ws.xml" /> -->
+ 	<sqlMap resource="sqlmaps/productInstance-ws.xml" />
+<!--     <sqlMap resource="sqlmaps/entityIdXref-ws.xml" />      -->
+<!--     <sqlMap resource="sqlmaps/serviceInstance-ws.xml" /> -->
+<!-- 	<sqlMap resource="sqlmaps/customerLink-ws.xml" /> -->
+<!-- 	<sqlMap resource="sqlmaps/billingAccountLink-ws.xml" /> -->
+<!-- 	<sqlMap resource="sqlmaps/epost-ws.xml" /> -->
+
+		<sqlMap resource="sqlmaps/orderAlias.xml" /> 
+		<sqlMap resource="sqlmaps/resourceHistory.xml" />
+		<sqlMap resource="sqlmaps/subscriberIdentityProfile.xml" />
+		<sqlMap resource="sqlmaps/subscriberResource.xml" />  
+</sqlMapConfig>

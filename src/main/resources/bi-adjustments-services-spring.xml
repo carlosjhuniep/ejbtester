@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+ 
+<beans>
+    <import resource="classpath:fw-int-user-spring.xml"/>
+	<bean id="telusSpringConfigurer"
+		class="com.telus.framework.config.spring.PlaceholderConfigurer" />
+
+   <bean id="billOdsDataSource" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyInterfaces"><value>javax.sql.DataSource</value></property>
+        <property name="targetSource">
+            <bean class="org.springframework.jndi.JndiObjectTargetSource">
+                <property name="jndiName"><value>${connections/dataSources/billOdsDataSource/jndiName}</value></property>
+                <property name="lookupOnStartup" value="false" />
+            </bean>
+        </property>
+    </bean>
+
+	<bean id="requestPdsDataSource" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyInterfaces"><value>javax.sql.DataSource</value></property>
+        <property name="targetSource">
+            <bean class="org.springframework.jndi.JndiObjectTargetSource">
+                <property name="jndiName"><value>${connections/dataSources/billingRequestPdsDataSource/jndiName}</value></property>
+                <property name="lookupOnStartup" value="false" />
+            </bean>
+        </property>
+    </bean>
+ 
+	<bean id="requestPdsSqlMap" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation">
+			<value>classpath:sqlmaps/requestpds-sqlmaps-config.xml</value>
+		</property>
+		<property name="dataSource"><ref local="requestPdsDataSource"/></property>
+	</bean>
+
+	<bean id="billOdsSqlMap" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation">
+			<value>classpath:sqlmaps/billods-sqlmap-config.xml</value>
+		</property>
+		<property name="dataSource"><ref local="billOdsDataSource"/></property>
+	</bean>
+
+
+	<!--  DAOs -->
+    <!-- Bill ODS Daos-->
+    
+	<bean id="billedUsageEventDao" 
+		class="com.telus.billing.billods.dao.BilledUsageEventDaoSqlmap">
+		<property name="sqlMapClient"><ref local="billOdsSqlMap"/></property>
+	</bean>
+
+	<bean id="billChargeDao" 
+		class="com.telus.billing.billods.dao.BillChargeDaoSqlmap">
+		<property name="sqlMapClient"><ref local="billOdsSqlMap"/></property>
+	</bean>
+
+	<bean id="billDocumentDao" 
+		class="com.telus.billing.billods.dao.BillDocumentDaoSqlmap">
+		<property name="sqlMapClient"><ref local="billOdsSqlMap"/></property>
+	</bean>
+
+    <!-- Request PDS DAOs-->
+	<bean id="billingRequestDao" class="com.telus.billingcare.requestpds.dao.BillingRequestDaoSqlMap">
+		<property name="sqlMapClient"><ref local="requestPdsSqlMap"/></property>
+	</bean>
+
+	<bean id="adjustmentTransactionDao" class="com.telus.billingcare.requestpds.dao.AdjustmentTransactionDaoSqlMap">
+		<property name="sqlMapClient"><ref local="requestPdsSqlMap"/></property>
+		<property name="billingRequestDao"><ref local="billingRequestDao"/></property>
+	</bean>
+
+	<bean id="chargeTransactionDao" 
+	    class="com.telus.billingcare.requestpds.dao.ChargeTransactionDaoSqlMap">
+		<property name="sqlMapClient"><ref local="requestPdsSqlMap"/></property>
+		<property name="billingRequestDao"><ref local="billingRequestDao"/></property>
+	</bean>
+
+
+	<!-- Enabler adapter spring beans -->
+
+    <!--  UAMS advice -->
+	<bean id="uamsAuthAdvise" class="com.telus.framework.security.authentication.impl.weblogic.WLAuthenticationAdvice">
+		<property name="authenticationImpl">
+			<ref bean="uamsLogon"/>
+		</property>
+		<property name="txManager">
+      	      		<bean class="org.springframework.jndi.JndiObjectFactoryBean">
+            	    		<property name="jndiName" value="javax.transaction.TransactionManager" />
+            		</bean>
+	      	</property>
+	</bean>
+
+
+	<bean id="uamsLogon" class="com.telus.framework.security.authentication.impl.amdocs.EnablerUamsAuthentication">
+		<property name="loginModule">
+			<value>${connections/uamsService/loginModule}</value>
+		</property>	
+		<property name="uamsApplicationId">
+			<value>${connections/uamsService/applicationId}</value>
+		</property>	
+		<property name="uamsEnvironment">
+			<value>${connections/uamsService/environment}</value>
+		</property>	
+		<property name="uamsUrl">
+			<value>${connections/uamsService/url}</value>
+		</property>	
+		<property name="uamsUser">
+			<value>${connections/uamsService/user}</value>
+		</property>	
+		<property name="uamsPassword">
+			<value>${connections/uamsService/password}</value>
+		</property>	
+		<property name="uamsAliasSvc" ref="userAliasSvc" />
+	</bean>
+	
+    <!--  Enabler Interfaces -->
+
+     	<bean id="amdocsServiceProxy" lazy-init="true" abstract="true"
+     		class="com.telus.framework.util.spring.ServiceProxy">
+        	<property name="lookupHomeOnStartup"><value>false</value></property>
+        	<property name="serviceType"><value>remote</value></property>
+        	<property name="jndiEnvironment">
+            		<props>
+                	    <prop key="java.naming.factory.initial">weblogic.jndi.WLInitialContextFactory</prop>
+                	    <prop key="java.naming.provider.url">${connections/servers/enablerSvr}</prop>
+                	    <prop key="java.naming.security.principal">${connections/security/jndiLookup/amdocs/principal}</prop>
+                	    <prop key="java.naming.security.credentials">${connections/security/jndiLookup/amdocs/credentials}</prop>                
+            		</props>
+        	</property>
+        	<property name="interceptorNames">
+            		<list>
+                	    <value>uamsAuthAdvise</value>
+            		</list>
+        	</property>
+    	</bean>
+ 
+
+	<bean id="enablerARBIRChargeServicesProxy" parent="amdocsServiceProxy">
+		<property name="jndiName">
+			<value>${connections/ejbServices/amdocsarBIRChargeSvc/jndiName}</value>
+		</property>
+		<property name="businessInterface">
+			<value>amdocs.ar.sessions.interfaces.api.ARBIRChargeServices</value>
+		</property>
+	</bean>
+
+	
+	<bean id="enablerARBIRAccountServicesProxy" parent="amdocsServiceProxy">
+		<property name="jndiName">
+			<value>${connections/ejbServices/amdocsarBIRAccountSvc/jndiName}</value>
+		</property>
+		<property name="businessInterface">
+			<value>amdocs.ar.sessions.interfaces.api.ARBIRAccountServices</value>
+		</property>
+	</bean>
+	
+	
+    	<bean id="enablerARBIRCreditServicesProxy" parent="amdocsServiceProxy">
+		<property name="jndiName">
+			<value>${connections/ejbServices/amdocsarBIRCreditSvc/jndiName}</value>
+		</property>
+		<property name="businessInterface">
+			<value>amdocs.ar.sessions.interfaces.api.ARBIRCreditServices</value>
+		</property>
+	</bean>
+	
+
+	<bean id="enablerChargeServicesProxy" parent="amdocsServiceProxy">
+		<property name="jndiName">
+			<value>${connections/ejbServices/amdocsbl9ChargeSvc/jndiName}</value>
+		</property>
+		<property name="businessInterface">
+			<value>amdocs.bl3g.sessions.interfaces.api.BL9ChargeServices</value>
+		</property>
+	</bean>
+	
+	<!-- 20060227 begin -->
+	<!--  Enabler CM AccountServices Interfaces -->
+	<bean id="enablerAccountServicesProxy" parent="amdocsServiceProxy">
+		<property name="jndiName">
+			<value>${connections/ejbServices/amdocscm1AccountSvc/jndiName}</value>
+		</property>
+		<property name="businessInterface">
+			<value>amdocs.csm3g.sessions.interfaces.api.AccountServices</value><!-- Amdocs CM AccountServices remote interface -->
+		</property>
+	</bean>
+	<!-- 20060227 end -->
+
+    <!-- Service Implementations -->
+	<!-- 2005-11-11 begin -->
+	<bean id="TeamMemberServiceEJBWrapper" lazy-init="true"
+		class="com.telus.framework.util.spring.ServiceProxy">
+        	<property name="serviceType"><value>remote</value></property>
+		<property name="jndiName">
+			<value>${connections/ejbServices/teamMemberSvc/jndiName}</value> 
+		</property>
+		<property name="jndiEnvironment">
+   		     <props>
+   		        <prop key="java.naming.factory.initial">weblogic.jndi.WLInitialContextFactory</prop>
+            		<prop key="java.naming.provider.url">${connections/ejbServices/teamMemberSvc/url}</prop>
+        	 </props>
+    	</property>
+		<property name="businessInterface">
+			<value>com.telus.identity.teammember.services.ejb.TeamMemberServiceBeanWrapperRemote</value>
+		</property>
+	</bean>
+
+	<bean id="TeamMemberServiceAdapter"
+		class="com.telus.identity.teammember.services.TeamMemberServiceAdapter"
+		singleton='false'>
+		<property name="applicationID">
+			<value></value>
+		</property>
+		<property name="teamMemberServiceBean">
+			<ref local="TeamMemberServiceEJBWrapper" />
+		</property>
+	</bean>
+	
+	<bean id="approvalController"
+		class="com.telus.identity.approval.impl.ApprovalControllerImpl"
+		singleton='false'>
+		<property name="teamMemberService">
+			<ref local="TeamMemberServiceAdapter" />
+		</property>
+	</bean>
+	<!-- 2005-11-11 end -->
+	
+	<bean id="teamMemberMgtSvc"
+		class="com.telus.billingcare.transaction.service.impl.TeamMemberMgtSvcImpl">
+		<!-- 2005-11-11 begin -->
+		<!--property name="teamMemberServiceAdapter">
+			<ref local="TeamMemberServiceAdapter" />
+		</property-->
+		<property name="approvalController">
+			<ref local="approvalController" />
+		</property>
+		<!-- 2005-11-11 end -->
+	</bean>
+	
+	<bean id="enablerArAdapter"
+		class="com.telus.billingcare.adjustment.adapter.EnablerArAdapter">
+		<property name="ARBIRCreditServices">
+			<ref local="enablerARBIRCreditServicesProxy" />
+		</property>
+		<property name="ARBIRChargeServices">
+			<ref local="enablerARBIRChargeServicesProxy" />
+		</property>
+		
+		<!-- CR 7805 -->
+		<property name="blChargeServices">
+			<ref local="enablerChargeServicesProxy" />
+		</property>
+		<!-- -->
+		
+		<property name="ARBIRAccountServices">
+			<ref local="enablerARBIRAccountServicesProxy" />
+		</property>
+		
+		<!-- 20060227 begin -->
+		<property name="enablerAccountServices">
+			<ref local="enablerAccountServicesProxy" />
+		</property>
+		<!-- 20060227 end -->
+	
+	</bean>
+	
+	<bean id="enablerBillingAdapter"
+		class="com.telus.billingcare.adjustment.adapter.EnablerBillingAdapter">
+		<property name="chargeServices">
+			<ref local="enablerChargeServicesProxy" />
+		</property>
+		<!-- 20060227 begin -->
+		<property name="enablerAccountServices">
+			<ref local="enablerAccountServicesProxy" />
+		</property>
+		<!-- subject to review - Fuchun -->
+		<property name="enablerArAdapter">
+			<ref local="enablerArAdapter" />
+		</property>
+		<!-- 20060227 end -->
+	</bean>
+	
+	<bean id="chargeMgtSvc"
+		class="com.telus.billingcare.charge.service.impl.ChargeMgtSvcImpl">
+		<property name="teamMemberMgtSvc">
+			<ref local="teamMemberMgtSvc" />
+		</property>
+		<property name="billingRequestDao">
+			<ref local="billingRequestDao" />
+		</property>
+		<property name="chargeTransactionDao">
+			<ref local="chargeTransactionDao" />
+		</property>
+		<property name="enablerBillingAdapter">
+			<ref local="enablerBillingAdapter" />
+		</property>
+		
+		<property name="chargeMgtAsyncProxy">
+			<ref local="chargeMgtAsyncProxy" />
+		</property>
+	</bean>
+	
+	<bean id="chargeMgtAsyncProxy"
+		class="com.telus.framework.messaging.messagingproxy.client.ServiceRequestClientProxyBean">
+    	<property name="senderBean">
+			<ref local="serviceRequestSenderBean" />
+    	</property>
+    	<property name="businessInterface">
+			<value>com.telus.billingcare.charge.service.ChargeMgtAsyncProxy</value>
+    	</property>
+	</bean>
+	
+	<bean id="ChargeMgtAsyncProxyService"
+		class="com.telus.billingcare.charge.service.impl.ChargeMgtSvcImpl">
+		<property name="teamMemberMgtSvc">
+			<ref local="teamMemberMgtSvc" />
+		</property>
+		<property name="billingRequestDao">
+			<ref local="billingRequestDao" />
+		</property>
+		<property name="chargeTransactionDao">
+			<ref local="chargeTransactionDao" />
+		</property>
+		<property name="enablerBillingAdapter">
+			<ref local="enablerBillingAdapter" />
+		</property>
+	</bean>
+
+    <bean id="loggingInterceptor" lazy-init="true" class="com.telus.billingcare.adjustment.spring.interceptor.LoggingMethodInterceptor"/>
+    
+	<bean id="adjustmentTransactionMgtSvcProxy" class="com.telus.framework.util.spring.ServiceProxy">
+		<property name="serviceType"><value>pojo</value></property>
+		<property name="target"><ref bean="adjustmentTransactionMgtSvc" /></property>
+		<property name="proxyTargetClass" value="true" />
+        <property name="interceptorNames">
+			<list>
+				<value>loggingInterceptor</value>
+			</list>
+		</property>                 
+	</bean>
+
+	<bean id="adjustmentTransactionMgtSvc"
+		class="com.telus.billingcare.adjustment.service.impl.AdjustmentTransactionMgtSvcImpl">
+		<property name="teamMemberMgtSvc">
+			<ref local="teamMemberMgtSvc" />
+		</property>
+		<property name="billingRequestDao">
+			<ref local="billingRequestDao" />
+		</property>
+		<property name="adjustmentTransactionDao">
+			<ref local="adjustmentTransactionDao" />
+		</property>
+		
+		<property name="billedUsageEventDao">
+		   <ref local="billedUsageEventDao" />
+		</property>
+		
+		<property name="enablerArAdapter">
+			<ref local="enablerArAdapter" />
+		</property>
+		
+		<property name="adjustmentTransactionMgtAsyncProxy">
+			<ref local="adjustmentTransactionMgtAsyncProxy" />
+		</property>
+		
+		<property name="billingAccountMgtService">
+			<ref local="billingAccountMgtService" />
+		</property>
+	</bean>
+
+	<bean id="billingAccountMgtService"
+		class="com.telus.customermgt.service.impl.BillingAccountMgtSvcImpl">
+		<property name="enablerCmServiceAdapter">
+			<ref local="enablerCmServiceAdapter" />
+		</property>
+		<property name="searchBillingAccountDao">
+			<ref local="searchBillingAccountDao" />
+		</property>
+	</bean>
+	
+	
+	<bean id="enablerCmServiceAdapter"
+		class="com.telus.customermgt.adapter.EnablerCmServiceAdapter">
+		<property name="enablerAR9CustomizationAccountServicesInterface">
+			<ref local="enablerAR9CustomizationAccountServicesProxy" />
+		</property>
+	</bean>
+	
+	 <bean id="enablerAR9CustomizationAccountServicesProxy" parent="amdocsServiceProxy">
+		<property name="jndiName">
+			<value>${connections/ejbServices/amdocsarBIRAccountSvc/jndiName}</value>
+		</property>
+		<property name="businessInterface">
+			<value>amdocs.ar.sessions.interfaces.api.AR9CustomizationAccountServices</value><!-- Amdocs remote interface-->
+		</property>
+	</bean>
+	
+	
+	<bean id="searchBillingAccountDao" class="com.telus.customermgt.customerods.dao.SearchBillingAccountDaoSqlmap">
+		<property name="sqlMapClient"><ref local="customerMgtSqlMap"/></property>
+		<property name="addressDao"><ref local="addressDao"/></property>
+	</bean>
+	
+	<bean id="customerMgtSqlMap" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation">
+			<value>classpath:sqlmaps/custmgt-sqlmap-config.xml</value>
+		</property>
+		<property name="dataSource"><ref local="customerOdsDataSource"/></property>
+	</bean>
+	
+	<bean id="addressDao" class="com.telus.customermgt.customerods.dao.AddressDaoSqlmap">
+		<property name="sqlMapClient"><ref local="customerMgtSqlMap"/></property>
+	</bean>
+
+	<bean id="customerOdsDataSource" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyInterfaces"><value>javax.sql.DataSource</value></property>
+        <property name="targetSource">
+            <bean class="org.springframework.jndi.JndiObjectTargetSource">
+                <property name="jndiName"><value>${connections/dataSources/customerOdsDataSource/jndiName}</value></property>
+                <property name="lookupOnStartup" value="false" />
+            </bean>
+        </property>
+    </bean>
+	
+
+	<bean id="adjustmentTransactionMgtAsyncProxy"
+		class="com.telus.framework.messaging.messagingproxy.client.ServiceRequestClientProxyBean">
+    	<property name="senderBean">
+			<ref local="serviceRequestSenderBean" />
+    	</property>
+    	<property name="businessInterface">
+			<value>com.telus.billingcare.adjustment.service.AdjustmentTransactionMgtAsyncProxy</value>
+    	</property>
+
+	</bean>	
+	
+	
+	<bean id="AdjustmentTransactionMgtAsyncProxyService" class="com.telus.framework.util.spring.ServiceProxy">
+		<property name="serviceType"><value>pojo</value></property>
+		<property name="target"><ref bean="adjustmentTransactionMgtAsyncProxyService" /></property>
+		<property name="proxyTargetClass" value="true" />
+        <property name="interceptorNames">
+			<list>
+				<value>loggingInterceptor</value>
+			</list>
+		</property>                 
+	</bean>
+	
+	
+	<bean id="adjustmentTransactionMgtAsyncProxyService"
+		class="com.telus.billingcare.adjustment.service.impl.AdjustmentTransactionMgtSvcImpl">
+		<property name="teamMemberMgtSvc">
+			<ref local="teamMemberMgtSvc" />
+		</property>
+		<property name="billingRequestDao">
+			<ref local="billingRequestDao" />
+		</property>
+		<property name="adjustmentTransactionDao">
+			<ref local="adjustmentTransactionDao" />
+		</property>
+		
+		<property name="billedUsageEventDao">
+		   <ref local="billedUsageEventDao" />
+		</property>
+		
+		<property name="enablerArAdapter">
+			<ref local="enablerArAdapter" />
+		</property> 
+	</bean>
+	
+	<bean id="serviceRequestSenderBean"
+		class="org.springframework.ejb.access.SimpleRemoteStatelessSessionProxyFactoryBean">
+		<property name="jndiName">
+			<value>${connections/ejbServices/adjustmentServiceRequestSender/jndiName}</value> 
+		</property>
+		<property name="jndiEnvironment">
+   		     <props>
+   		        <prop key="java.naming.factory.initial">weblogic.jndi.WLInitialContextFactory</prop>
+            	<prop key="java.naming.provider.url">${connections/ejbServices/adjustmentServiceRequestSender/url}</prop>
+        	 </props>
+    	</property>
+		<property name="businessInterface">
+			<value>com.telus.framework.messaging.messagingproxy.ServiceRequestSender</value>
+		</property>
+	</bean>
+
+    <!-- ebill svc 
+	<bean id="eBillDatasource" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyInterfaces"><value>javax.sql.DataSource</value></property>
+        <property name="targetSource">
+            <bean class="org.springframework.jndi.JndiObjectTargetSource">
+                <property name="jndiName"><value>${connections/dataSources/eBillDataSource/jndiName}</value></property>
+                <property name="lookupOnStartup" value="false" />
+            </bean>
+        </property>
+    </bean>-->
+	
+	<!-- iBATIS SqlMap configuration follows
+	<bean id="ebillSqlMap" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation"><value>classpath:sqlmaps/ebill-sqlmap-config.xml</value></property>
+		<property name="dataSource"><ref local="eBillDatasource"/></property>		
+	</bean>-->
+
+	<!-- DAOs 
+	<bean id="urlDao" class="com.telus.ebill.dao.UrlDaoSqlmap">
+		<property name="sqlMapClient"><ref local="ebillSqlMap"/></property>
+	</bean>-->
+	
+    <bean id="billingMgtSvc"
+		class="com.telus.billingcare.adjustment.service.impl.BillingMgtSvcImpl">
+		<property name="billedUsageEventDao">
+			<ref local="billedUsageEventDao" />
+		</property>
+		<property name="billChargeDao">
+			<ref local="billChargeDao" />
+		</property>
+		<property name="billDocumentDao">
+			<ref local="billDocumentDao" />
+		</property>
+		<!--
+ 		<property name="urlDao">
+ 			<ref local="urlDao"/>
+ 		</property>-->		
+	</bean>
+  
+	<bean id="AdjustmentServiceMdb-asyncErrHandlerList" 
+      class="com.telus.framework.messaging.asyncerrorhandler.MDBExceptionConfig">
+
+      <property name="exceptionHandlers">
+        <list>
+           <value>FileStoreExceptionHandler</value>
+        </list>
+      </property>
+      <property name="maxDeliveryCount">
+        <value>1</value>
+      </property>
+      <property name="exceptionProcessorBeanId">
+        <value>mdbSlsbService</value>
+      </property>
+    </bean>
+
+
+    <bean id="mdbSlsbService"
+               class="org.springframework.ejb.access.SimpleRemoteStatelessSessionProxyFactoryBean">
+       <property name="jndiName">
+          <value>com/telus/bilintg/adjustment/AsyncErrorProcessorHome</value>
+       </property>
+       <property name="businessInterface">
+          <value>com.telus.framework.messaging.asyncerrorhandler.AsyncErrorProcessor</value>
+       </property>
+    </bean>
+
+    <bean id="ServiceMdbProcessor" class="com.telus.framework.messaging.asyncerrorhandler.AsyncErrorProcessorBean" lazy-init="true">
+    </bean>
+
+	<!-- This is needed because of Frameworks defect -->
+    <bean id="trbErrProcessor" class="com.telus.framework.messaging.asyncerrorhandler.AsyncErrorProcessorBean" lazy-init="true">
+    </bean>
+    
+    <bean id="AdjustmentServiceMdb.FileStoreExceptionHandler" class="com.telus.framework.messaging.asyncerrorhandler.FileStoreExceptionHandler" lazy-init="true">
+       <property name="exceptionFolderPath">
+          <value>${mdbErrorHandler/adjustments/exceptionsFolder}</value>
+       </property>
+       <property name="exceptionClasses">
+          <list>
+             <value>java.lang.Throwable</value>
+             <value>java.lang.Exception</value>
+          </list>
+       </property>
+    </bean>
+    
+        	
+</beans>

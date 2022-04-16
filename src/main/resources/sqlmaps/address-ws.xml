@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="customerods">
+	
+	<resultMap id="AddressMap" class="com.telus.cmo.informationmgmt.domain.Address" groupBy="addressId">
+        <result property="addressId" column="addressId" />
+        <result property="addrAssgnmtId" column="addrAssgnmtId" />
+		<result property="addressTypeCode" column="addressTypeCode"/>
+		<result property="unitNumber" column="unitNumber"/>
+		<result property="civicNumber" column="civicNumber"/>
+		<result property="civicNumberSuffix" column="civicNumberSuffix"/>
+		<result property="streetName" column="streetName"/>
+		<result property="streetTypeCode" column="streetTypeCode"/>
+		<result property="streetDirectionCode" column="streetDirectionCode"/>
+		<result property="municipalityName" column="municipalityName"/>
+		<result property="provinceStateCode" column="provinceStateCode"/>
+		<result property="postalZipCode" column="postalZipCode"/>
+		<result property="countryCode" column="countryCode"/>
+		<result property="postOfficeBoxNumber" column="postOfficeBoxNumber" />
+		<result property="stationTypeCode" column="stationTypeCode" />
+		<result property="stationName" column="stationName" />
+		<result property="ruralRouteNumber" column="ruralRouteNumber" />
+		<result property="ruralRouteTypeCode" column="ruralRouteTypeCode" />
+		<result property="hmcsName" column="hmcsName" />
+		<result property="fleetMailOfficeName" column="fleetMailOfficeName" />
+		<result property="additionalAddressInformation" column="additionalAddressInformation" typeHandler="com.telus.cmo.informationmgmt.customerods.dao.ListCallbackHandler"/>
+        <result property="externalServiceAddressId" column="externalServiceAddressId" />
+        <result property="emailAddressText" column="emailAddressText" />
+        <result property="mailingTypeCode" column="mailingTypeCode" />
+        <result property="addressMatchingStatusCode" column="addressMatchingStatusCode" />
+        <result property="validateAddressIndicator" column="validateAddressIndicator" />
+        <result property="renderedAddress" column="renderedAddressLine" typeHandler="com.telus.cmo.informationmgmt.customerods.dao.ListCallbackHandler"/>
+        <result property="careOf" column="careOf" />
+        <result property="addressAssignmentTypeCode" column="addressAssignmentTypeCode" />
+        <result property="masterSourceId" column="masterSourceId" />
+        <result property="stationQualifier" column="stationQualifier" />
+	</resultMap>
+	
+	<resultMap id="AddressAssignmentMap" class="com.telus.cmo.informationmgmt.customerods.AddressAssignment">
+        <result property="entityId" column="entityId" />
+        <result property="address" resultMap="customerods.AddressMap" />
+		
+	</resultMap>
+	
+	<!--QC82125		Configuration for GET_CURRENT_SERVICE_ADDRESSES_BY_SERVICE_IDS		-->
+	<select id="address_get_current_service_addresses_by_service_ids"
+		resultMap="AddressAssignmentMap"  
+		parameterClass="java.util.List">
+
+	Select 
+	a.ADDR_ID  as addressId,
+	a.ADDR_TYPE_CD  as addressTypeCode,
+	a.UNIT_NUM  as unitNumber,
+	a.CIVIC_NUM  as civicNumber,
+	a.CIVIC_NUM_SFX_TXT  as civicNumberSuffix,
+	a.STREET_NM  as streetName,
+	a.STREET_TYPE_CD  as streetTypeCode,
+	a.STREET_DIR_CD  as streetDirectionCode,
+	a.MUNIC_NM  as municipalityName,
+	a.PROV_STATE_CD  as provinceStateCode,
+	a.POSTAL_ZIP_CD_TXT  as postalZipCode,
+	a.COUNTRY_CD  as countryCode,
+	a.PO_BOX_NUM  as postOfficeBoxNumber,
+	a.STN_TYPE_CD  as stationTypeCode,
+	a.STN_AREA_NM  as stationName,
+	a.STN_NM  as stationQualifier,
+	a.CARE_OF_TXT as careOf,
+	a.RUR_RTE_TYPE_CD  as ruralRouteTypeCode,
+	a.RUR_RTE_NUM  as ruralRouteNumber,
+	a.HMCS_NM  as hmcsName,
+	a.FLEET_MAIL_OFFC_NM  as fleetMailOfficeName,	
+	a.ADDNL_ADDR_INFO_1_TXT ||'|'|| 
+  	a.ADDNL_ADDR_INFO_2_TXT ||'|'|| 
+	a.ADDNL_ADDR_INFO_3_TXT ||'|'|| 
+	a.ADDNL_ADDR_INFO_4_TXT as additionalAddressInformation,  	
+	a.EXTRNL_SERVICE_ADDR_ID  as externalServiceAddressId,
+	a.EMAIL_ADDR_TXT  as emailAddressText,
+	a.MAILG_TYPE_CD  as mailingTypeCode,
+	a.ADDR_MATCHING_STAT_CD  as addressMatchingStatusCode,
+	a.VALID_ADDR_IND  as validateAddressIndicator,
+	a.RENDERED_ADDR_LN_1_TXT ||'|'|| 
+	a.RENDERED_ADDR_LN_2_TXT ||'|'|| 
+	a.RENDERED_ADDR_LN_3_TXT ||'|'|| 
+	a.RENDERED_ADDR_LN_4_TXT  as renderedAddressLine,
+	aa.ADDR_ASGNMT_ID as addrAssgnmtId,
+	aa.ADDR_ASGNMT_TYPE_CD as addressAssignmentTypeCode,
+	aa.ENTITY_ID as entityId,
+	aa.MASTER_SOURCE_ID as masterSourceId
+	
+	From Address a, ADDRESS_ASSIGNMENT aa
+	where aa.ADDR_ID = a.ADDR_ID
+	and aa.ENTITY_TYPE_CD = 'SRVC_INST'
+	and aa.ADDR_ASGNMT_TYPE_CD = 'S'
+	and  aa.ENTITY_ID  in  
+
+	<iterate open="(" close=")" conjunction=",">#serviceInstanceIds[]#</iterate>
+
+	and not exists 
+	( select 1 from Address a2, ADDRESS_ASSIGNMENT aa2
+		where aa2.ADDR_ID = a2.ADDR_ID
+		and  aa2.ENTITY_TYPE_CD = aa.ENTITY_TYPE_CD
+		and aa2.ADDR_ASGNMT_TYPE_CD = aa.ADDR_ASGNMT_TYPE_CD
+		and aa2.ENTITY_ID = aa.ENTITY_ID
+		and a2.ADDR_ID != a.ADDR_ID
+		and Nvl (aa2.EFF_END_DT, Sysdate - 1 ) > Nvl (aa.EFF_END_DT, Sysdate + 1 ) 
+	)
+
+	</select>
+	
+	<!--		Configuration for GET_CURRENT_BILLING_MAIL_ADDRESSES_BY_BILLING_ACCOUNT_IDS		-->
+	<select id="address_get_current_billing_mail_addresses_by_billing_account_ids"
+		resultClass="com.telus.cmo.informationmgmt.domain.Address"  
+		parameterClass="java.util.List" resultMap="AddressMap">
+
+	Select 
+	a.ADDR_ID  as addressId,
+	a.ADDR_TYPE_CD  as addressTypeCode,
+	a.UNIT_NUM  as unitNumber,
+	a.CIVIC_NUM  as civicNumber,
+	a.CIVIC_NUM_SFX_TXT  as civicNumberSuffix,
+	a.STREET_NM  as streetName,
+	a.STREET_TYPE_CD  as streetTypeCode,
+	a.STREET_DIR_CD  as streetDirectionCode,
+	a.MUNIC_NM  as municipalityName,
+	a.PROV_STATE_CD  as provinceStateCode,
+	a.POSTAL_ZIP_CD_TXT  as postalZipCode,
+	a.COUNTRY_CD  as countryCode,
+	a.PO_BOX_NUM  as postOfficeBoxNumber,
+	a.STN_TYPE_CD  as stationTypeCode,
+	a.STN_NM  as stationQualifier,
+	a.CARE_OF_TXT as careOf,
+	a.RUR_RTE_TYPE_CD  as ruralRouteTypeCode,
+	a.RUR_RTE_NUM  as ruralRouteNumber,
+	a.HMCS_NM  as hmcsName,
+	a.FLEET_MAIL_OFFC_NM  as fleetMailOfficeName,
+	a.ADDNL_ADDR_INFO_1_TXT  as additionalAddressInformation1,
+	a.ADDNL_ADDR_INFO_2_TXT  as additionalAddressInformation2,
+	a.ADDNL_ADDR_INFO_3_TXT  as additionalAddressInformation3,
+	a.ADDNL_ADDR_INFO_4_TXT  as additionalAddressInformation4,
+	a.ADDNL_ADDR_INFO_1_TXT ||'|'|| a.ADDNL_ADDR_INFO_2_TXT ||'|'|| a.ADDNL_ADDR_INFO_3_TXT ||'|'|| a.ADDNL_ADDR_INFO_4_TXT as additionalAddressInformation,
+	a.EXTRNL_SERVICE_ADDR_ID  as externalServiceAddressId,
+	a.EMAIL_ADDR_TXT  as emailAddressText,
+	a.MAILG_TYPE_CD  as mailingTypeCode,
+	a.ADDR_MATCHING_STAT_CD  as addressMatchingStatuscode,
+	a.VALID_ADDR_IND  as validateAddressIndicator,
+	a.RENDERED_ADDR_LN_1_TXT  as addressLine1,
+	a.RENDERED_ADDR_LN_2_TXT  as addressLine2,
+	a.RENDERED_ADDR_LN_3_TXT  as addressLine3,
+	a.RENDERED_ADDR_LN_4_TXT  as addressLine4,
+	a.RENDERED_ADDR_LN_5_TXT  as renderedAddressLine5,
+	a.RENDERED_ADDR_LN_1_TXT ||'|'|| a.RENDERED_ADDR_LN_2_TXT ||'|'|| a.RENDERED_ADDR_LN_3_TXT ||'|'|| a.RENDERED_ADDR_LN_4_TXT ||'|'|| a.RENDERED_ADDR_LN_5_TXT as renderedAddressLine,
+	aa.ADDR_ASGNMT_TYPE_CD as addressAssignmentTypeCode,
+	aa.EFF_START_DT as effectiveStartDate,
+	aa.EFF_END_DT as effectiveEndDate,
+	aa.ENTITY_ID as entityId,
+	a.STN_AREA_NM as stationName
+	
+	From Address a, ADDRESS_ASSIGNMENT aa
+	where aa.ADDR_ID = a.ADDR_ID
+	and aa.ENTITY_TYPE_CD = 'ACCOUNT'
+	and aa.ADDR_ASGNMT_TYPE_CD = 'M'
+	and  aa.ENTITY_ID  in  
+
+	<iterate open="(" close=")" conjunction="," property="accountList">#accountList[]#</iterate>
+
+	and not exists 
+	( select 1 from Address a2, ADDRESS_ASSIGNMENT aa2
+		where aa2.ADDR_ID = a2.ADDR_ID
+		and  aa2.ENTITY_TYPE_CD = aa.ENTITY_TYPE_CD
+		and aa2.ADDR_ASGNMT_TYPE_CD = aa.ADDR_ASGNMT_TYPE_CD
+		and aa2.ENTITY_ID = aa.ENTITY_ID     
+		and a2.ADDR_ID != a.ADDR_ID
+		and Nvl (aa2.EFF_END_DT, Sysdate - 1 ) > Nvl (aa.EFF_END_DT, Sysdate + 1 ) 
+	)
+
+
+	</select>
+	
+	
+	<!--		 Configuration for GET_ADDRESS_ID_BY_LINK_TO_ADDRESS		-->
+	<select id="address_get_address_id_by_address_assignment"
+		resultClass="long" parameterClass="com.telus.cmo.informationmgmt.customerods.AddressAssignment">
+	Select a.ADDR_ID
+	From Address a, ADDRESS_ASSIGNMENT aa
+	where aa.ADDR_ID = a.ADDR_ID
+	and aa.ENTITY_TYPE_CD = #entityType:VARCHAR#
+	and aa.ENTITY_ID = #entityId:NUMERIC#
+	and EFF_END_DT is Null
+	<isNotNull property = "assignmentTypeCode"  prepend="and">
+	aa.ADDR_ASGNMT_TYPE_CD = #assignmentTypeCode:VARCHAR#
+	</isNotNull>
+	</select>
+	
+	<!-- Configuration for insert address -->
+	<insert id="address_insert_address" parameterClass="java.util.Map">
+		<selectKey resultClass="long" keyProperty="address.addressId">
+			select ADDR_ID_SEQ.NEXTVAL AS id FROM dual
+        </selectKey>
+
+		insert into ADDRESS(
+			ADDR_ID,
+			ADDR_TYPE_CD,
+			UNIT_NUM,
+			CIVIC_NUM,
+			CIVIC_NUM_SFX_TXT,
+			STREET_NM,
+			STREET_TYPE_CD,
+			STREET_DIR_CD,
+			MUNIC_NM,
+			PROV_STATE_CD,
+			POSTAL_ZIP_CD_TXT,
+			COUNTRY_CD,
+			PO_BOX_NUM,
+			STN_TYPE_CD,
+			STN_NM,
+			RUR_RTE_TYPE_CD,
+			RUR_RTE_NUM,
+			HMCS_NM,
+			FLEET_MAIL_OFFC_NM,
+			ADDNL_ADDR_INFO_1_TXT,
+			ADDNL_ADDR_INFO_2_TXT,
+			ADDNL_ADDR_INFO_3_TXT,
+			ADDNL_ADDR_INFO_4_TXT,
+			EXTRNL_SERVICE_ADDR_ID,
+			EMAIL_ADDR_TXT,
+			MAILG_TYPE_CD,
+			ADDR_MATCHING_STAT_CD,
+			VALID_ADDR_IND,
+			RENDERED_ADDR_LN_1_TXT,
+			RENDERED_ADDR_LN_2_TXT,
+			RENDERED_ADDR_LN_3_TXT,
+			RENDERED_ADDR_LN_4_TXT,
+			RENDERED_ADDR_LN_5_TXT,
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS,
+			LAST_UPDT_USER_ID,
+			CARE_OF_TXT,
+			MASTER_SOURCE_ID,
+			STN_AREA_NM
+		)
+		values
+		(
+			#address.addressId:NUMERIC#,
+			#address.addressTypeCode:VARCHAR#,
+			#address.unitNumber:VARCHAR#,
+			#address.civicNumber:VARCHAR#,
+			#address.civicNumberSuffix:VARCHAR#,
+			#address.streetName:VARCHAR#,
+			#address.streetTypeCode:VARCHAR#,
+			#address.streetDirectionCode:VARCHAR#,
+			#address.municipalityName:VARCHAR#,
+			#address.provinceStateCode:VARCHAR#,
+			#address.postalZipCode:VARCHAR#,
+			#address.countryCode:VARCHAR#,
+			#address.postOfficeBoxNumber:VARCHAR#,
+			#address.stationTypeCode:VARCHAR#,
+			#address.stationQualifier:VARCHAR#,
+			#address.ruralRouteTypeCode:VARCHAR#,
+			#address.ruralRouteNumber:VARCHAR#,
+			#address.hmcsName:VARCHAR#,
+			#address.fleetMailOfficeName:VARCHAR#,
+			#additionalAddressInformation1:VARCHAR#,
+			#additionalAddressInformation2:VARCHAR#,
+			#additionalAddressInformation3:VARCHAR#,
+			#additionalAddressInformation4:VARCHAR#,
+			#address.externalServiceAddressId:VARCHAR#,
+			#address.emailAddressText:VARCHAR#,
+			#address.mailingTypeCode:VARCHAR#,
+			#address.addressMatchingStatusCode:VARCHAR#,
+			#address.validateAddressIndicator:VARCHAR#,
+			#renderedAddressLine1:VARCHAR#,
+			#renderedAddressLine2:VARCHAR#,
+			#renderedAddressLine3:VARCHAR#,
+			#renderedAddressLine4:VARCHAR#,
+			#renderedAddressLine5:VARCHAR#,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			#address.careOf:VARCHAR#,
+			#address.masterSourceId:NUMERIC#,
+			#address.stationName:VARCHAR#
+		)
+	</insert>
+	
+	<!-- Configuration for insert address_assignment -->
+	<insert id="address_insert_address_assignment" parameterClass="java.util.Map">
+		<selectKey resultClass="int" keyProperty="addressAssignment.id">
+			select ADDR_ASGNMT_ID_SEQ.NEXTVAL AS id FROM dual
+        </selectKey>
+
+		insert into ADDRESS_ASSIGNMENT(
+			ADDR_ASGNMT_ID,
+			ENTITY_TYPE_CD,
+			ENTITY_ID,
+			ADDR_ID,
+			ADDR_ASGNMT_TYPE_CD,
+			EFF_START_DT,
+			EFF_END_DT,
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS,
+			LAST_UPDT_USER_ID,
+			MASTER_SOURCE_ID
+		)
+		values
+		(
+			#addressAssignment.id:NUMERIC#,
+			#addressAssignment.entityType:VARCHAR#,
+			#addressAssignment.entityId:NUMERIC#,
+			#addressAssignment.addressId:NUMERIC#,
+			#addressAssignment.assignmentTypeCode:VARCHAR#,
+			SYSTIMESTAMP,
+			NULL,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			#addressAssignment.masterSourceId:NUMERIC#
+		)
+	</insert>
+	
+	
+	<!--		Configuration for UPDATE_ADDRESS		-->
+	<update id="address_update_address" parameterClass="java.util.Map">
+		Update ADDRESS
+			Set
+			ADDR_TYPE_CD = #address.addressTypeCode:VARCHAR#,
+			UNIT_NUM = #address.unitNumber:VARCHAR:NONE#,
+			CIVIC_NUM = #address.civicNumber:VARCHAR#,
+			CIVIC_NUM_SFX_TXT =	#address.civicNumberSuffix:VARCHAR#,
+			STREET_NM = #address.streetName:VARCHAR#,
+			STREET_TYPE_CD = #address.streetTypeCode:VARCHAR#,
+			STREET_DIR_CD =	#address.streetDirectionCode:VARCHAR#,
+			MUNIC_NM = #address.municipalityName:VARCHAR#,
+			PROV_STATE_CD =	#address.provinceStateCode:VARCHAR#,
+			POSTAL_ZIP_CD_TXT =	#address.postalZipCode:VARCHAR#,
+			COUNTRY_CD = #address.countryCode:VARCHAR#,
+			PO_BOX_NUM = #address.postOfficeBoxNumber:VARCHAR#,
+			STN_TYPE_CD = #address.stationTypeCode:VARCHAR#,
+			STN_NM = #address.stationQualifier:VARCHAR#,
+			RUR_RTE_TYPE_CD = #address.ruralRouteTypeCode:VARCHAR#,
+			RUR_RTE_NUM = #address.ruralRouteNumber:VARCHAR#,
+			HMCS_NM = #address.hmcsName:VARCHAR#,
+			FLEET_MAIL_OFFC_NM = #address.fleetMailOfficeName:VARCHAR#,
+			ADDNL_ADDR_INFO_1_TXT = #additionalAddressInformation1:VARCHAR#,
+			ADDNL_ADDR_INFO_2_TXT = #additionalAddressInformation2:VARCHAR#,
+			ADDNL_ADDR_INFO_3_TXT = #additionalAddressInformation3:VARCHAR#,
+			ADDNL_ADDR_INFO_4_TXT = #additionalAddressInformation4:VARCHAR#,
+			EXTRNL_SERVICE_ADDR_ID = #address.externalServiceAddressId:VARCHAR#,
+			EMAIL_ADDR_TXT = #address.emailAddressText:VARCHAR#,
+			MAILG_TYPE_CD =	#address.mailingTypeCode:VARCHAR#,
+			ADDR_MATCHING_STAT_CD =	#address.addressMatchingStatusCode:VARCHAR#,
+			VALID_ADDR_IND = #address.validateAddressIndicator:VARCHAR#,
+			RENDERED_ADDR_LN_1_TXT = #renderedAddressLine1:VARCHAR#,
+			RENDERED_ADDR_LN_2_TXT = #renderedAddressLine2:VARCHAR#,
+			RENDERED_ADDR_LN_3_TXT = #renderedAddressLine3:VARCHAR#,
+			RENDERED_ADDR_LN_4_TXT = #renderedAddressLine4:VARCHAR#,
+			RENDERED_ADDR_LN_5_TXT = #renderedAddressLine5:VARCHAR#,
+			CARE_OF_TXT = #address.careOf:VARCHAR#,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID =	#auditInfo.userId:VARCHAR#,
+			STN_AREA_NM = #address.stationName:VARCHAR#
+		where ADDR_ID = #address.addressId:NUMERIC#
+
+	</update>
+	
+	
+	<!-- Configuration for update address_assignment effective end date -->
+	<update id="address_expire_address_assignment" parameterClass="java.util.Map">
+	
+		UPDATE ADDRESS_ASSIGNMENT
+			SET EFF_END_DT = sysdate,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId#
+		WHERE ENTITY_ID = #addressAssignment.entityId#
+			AND ENTITY_TYPE_CD = #addressAssignment.entityType#
+			AND EFF_END_DT is null
+			<isNotNull property="addressAssignment.assignmentTypeCode" prepend="and">
+				ADDR_ASGNMT_TYPE_CD = #addressAssignment.assignmentTypeCode#
+			</isNotNull>
+	</update>
+	
+	<!-- Configuration for update address_assignment effective end date -->
+	<update id="address_update_address_assignment" parameterClass="java.util.Map">
+	
+		UPDATE ADDRESS_ASSIGNMENT
+			SET LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId#
+		WHERE ENTITY_ID = #addressAssignment.entityId#
+			AND ENTITY_TYPE_CD = #addressAssignment.entityType#
+			AND EFF_END_DT is null
+			<isNotNull property="addressAssignment.assignmentTypeCode" prepend="and">
+				ADDR_ASGNMT_TYPE_CD = #addressAssignment.assignmentTypeCode#
+			</isNotNull>
+	</update>
+	
+</sqlMap>

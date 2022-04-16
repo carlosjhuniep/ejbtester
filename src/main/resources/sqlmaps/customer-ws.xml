@@ -1,0 +1,823 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://www.ibatis.com/dtd/sql-map-2.dtd"> 
+    
+<sqlMap namespace="customerods">
+
+    <resultMap id="CustomerIdMap" class="com.telus.cmo.informationmgmt.domain.Customer">
+		<result property="customerId" column="CustomerId" jdbcType="NUMBER" javaType="java.lang.Long"/>
+		<result property="customerCreationDate" column="CustomerCreationDate" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+		<result property="customerStatusCode" column="CustomerStatus" jdbcType="VARCHAR2" javaType="java.lang.String"/>
+		<result property="customerTypeCode" column="CustomerTypeCode" jdbcType="VARCHAR2" javaType="java.lang.String"/>
+		<result property="customerSubTypeCode" column="CustomerSubTypeCode" jdbcType="VARCHAR2" javaType="java.lang.String"/>
+		<result property="defaultPostpaidPayChannelId" column="DefaultPostpaidPayChannelId" jdbcType="NUMBER" javaType="java.lang.Long"/>
+		<result property="customerMasterSourceId" column="CustomerMasterSourceId" jdbcType="NUMBER" javaType="java.lang.Long"/>
+		<result property="creditValueCode" column="CreditValueCode" jdbcType="VARCHAR2" javaType="java.lang.String"/>
+		<result property="billCycleCode" column="BillCycleCode" jdbcType="VARCHAR2" javaType="java.lang.String"/>
+		<result property="newBillCycleCode" column="NewBillCycleCode" jdbcType="VARCHAR2" javaType="java.lang.String"/>
+		<result property="brandId" column="BrandId" jdbcType="NUMBER" javaType="java.lang.Long"/>
+    </resultMap>
+    
+    <resultMap id="CustomerSearchMap" class="com.telus.cmo.informationmgmt.customermgmt.FullCustomer" groupBy="customerId">
+		<result property="customerId" column="CustomerId" jdbcType="NUMBER" javaType="java.lang.Long"/>
+		<result property="customerCreationDate" column="CustomerCreationDate" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+		<result property="customerStatusCode" column="CustomerStatus" jdbcType="VARCHAR2" javaType="java.lang.String"/>
+		<result property="customerTypeCode" column="CustomerTypeCode" jdbcType="VARCHAR2" javaType="java.lang.String"/>
+		<result property="customerSubTypeCode" column="CustomerSubTypeCode" jdbcType="VARCHAR2" javaType="java.lang.String"/>
+		<result property="defaultPostpaidPayChannelId" column="DefaultPostpaidPayChannelId" jdbcType="NUMBER" javaType="java.lang.Long"/>
+		<result property="customerMasterSourceId" column="CustomerMasterSourceId" jdbcType="NUMBER" javaType="java.lang.Long"/>
+		<result property="creditValueCode" column="CreditValueCode" jdbcType="VARCHAR2" javaType="java.lang.String"/>
+		<result property="billCycleCode" column="BillCycleCode" jdbcType="VARCHAR2" javaType="java.lang.String"/>
+		<result property="newBillCycleCode" column="NewBillCycleCode" jdbcType="VARCHAR2" javaType="java.lang.String"/>
+		<result property="brandId" column="BrandId" jdbcType="NUMBER" javaType="java.lang.Long"/>
+		<result property="hearingImpairedInd" column="HearingImpairedInd" typeHandler="com.telus.cmo.informationmgmt.customerods.dao.StringBooleanTypeHandler"/>
+		<result property="visuallyImpairedInd" column="VisuallyImpairedInd" typeHandler="com.telus.cmo.informationmgmt.customerods.dao.StringBooleanTypeHandler"/>
+		<result property="teamMemberId" column="TeamMemberId" jdbcType="VARCHAR2" javaType="java.lang.String"/>
+		<result property="teamMemberConcessionCode" column="TeamMemberConcessionCode" jdbcType="VARCHAR2" javaType="java.lang.String"/>	
+		<result property="addressList" resultMap="customerods.AddressMap"/>
+    	<!-- <result property="marketSegmentList" resultMap="customerods.customerMarketSegment-res" />-->
+		<result property="nameList" resultMap="customerods.CustomerSearchNameMap" />
+    </resultMap>  
+    
+    <resultMap id="CustomerSearchNameMap" class="com.telus.cmo.informationmgmt.domain.Name" groupBy="nameId">
+    	<result property="nameId" column="CUST_INDIVIDUAL_PROFL_ID" />
+		<result property="salutationCode" column="SALUTATION_CD" />
+		<result property="firstName" column="FIRST_NM" />
+		<result property="middleName" column="MIDDLE_NM" />
+		<result property="lastName" column="LAST_NM" />
+		<result property="nameSuffixCode" column="NM_SUFFIX_CD" />
+		<result property="supplementaryName" column="SUPPLMT_NM" />
+		<result property="supplementaryNameOperatingCode" column="SUPPLMT_NM_OPERATING_CD" />
+		<result property="fullName" column="FULL_NM" />
+		<result property="nameLine1Text" column="NM_LN_1_TXT" />
+		<result property="nameLine2Text" column="NM_LN_2_TXT" />
+	</resultMap>
+	
+	<resultMap id="CustomerSearchResultMap" class="com.telus.cmo.informationmgmt.customermgmt.SearchCustomerResult">	
+		<result property="customerId" column="CUSTOMER_ID" />
+		<result property="name" resultMap="customerods.CustomerSearchNameMap" />
+	</resultMap>
+	
+	<resultMap id="CustomerQuickSearchResultMap" class="com.telus.cmo.informationmgmt.customermgmt.QuickSearchCustomerResult">	
+		<result property="customerId" column="CUSTOMER_ID" />
+		<result property="billingAccountNumber" column="BILLING_ACCOUNT_NUM" />
+		<result property="billingAccountStatusCode" column="BACCT_STATUS_CD" />
+		<result property="billingMasterSourceId" column="BILLING_MASTER_SRC_ID" />
+	</resultMap>
+	
+ 	<resultMap id="marketingMessageMap" class="com.telus.tmi.xmlschema.xsd.marketingsales.marketingcampaign.marketingcampaigntypes_v1.MarketingMessage" groupBy="marketingMessageId" >
+		<result property="marketingMessageId" column="CUST_MKTG_MSG_ID" />
+		<result property="marketingMessageTypeCode" column="MKTG_MSG_TYPE_CD" />
+		<result property="message" resultMap="customerods.messageMap" />	
+	</resultMap>
+
+	<resultMap id="messageMap" class="com.telus.cmo.informationmgmt.customerods.dvo.MultilingualDescriptionListExt" groupBy="recordId">
+		<result property="recordId" column="CUST_MKTG_MSG_ID" />	
+		<result property="description" resultMap="customerods.descriptionMap" />	
+	</resultMap>
+
+	<resultMap id="descriptionMap" class="com.telus.tmi.xmlschema.xsd.enterprise.basetypes.enterprisecommontypes_v9.Description">
+		<result property="locale" column="LANG_CD" />
+		<result property="descriptionText" column="MKTG_MSG_TXT" />	
+	</resultMap>
+
+ 	<resultMap id="customerSalesOpportunityMap" class="com.telus.tmi.xmlschema.xsd.marketingsales.marketingcampaign.marketingcampaigntypes_v1.SalesOpportunity"  groupBy="salesOpportunityId">
+		<result property="salesOpportunityId" column="CUST_SLSOPP_ID" />
+		<result property="priorityNumber" column="PRIORITY_NUM" />
+		<result property="descriptionList" resultMap="customerods.customerSalesOpportunityDescriptionMap" />
+		<result property="salesChannelList" resultMap="customerods.salesChannelListMap" />
+		<result property="advertisementBanner" resultMap="customerods.advertisementBannerMap" />
+	</resultMap>
+
+	<resultMap id="customerSalesOpportunityDescriptionMap" class="com.telus.cmo.informationmgmt.customerods.dvo.DescriptionExt" groupBy="recordId">
+		<result property="recordId" column="SLSOPP_DESC_ID" />
+		<result property="locale" column="LANG_CD" />
+		<result property="descriptionText" column="SLSOPP_DESC" />	
+	</resultMap>
+	
+	<resultMap id="salesChannelListMap" class="com.telus.cmo.informationmgmt.customerods.dvo.MultilingualCodeDescriptionListExt" groupBy="recordId">
+		<result property="recordId" column="SLSOPP_SLSCHNL_ASGNMT_ID" />	
+		<result property="code" column="SALES_CHANNEL_CD" />	
+	</resultMap>
+
+		
+	<resultMap id="advertisementBannerMap" class="com.telus.cmo.informationmgmt.customerods.dvo.MultilingualCodeDescriptionListExt"  groupBy="recordId">
+		<result property="recordId" column="CUST_SLSOPP_ID" />	
+		<result property="code" column="AD_BANNER_CD" nullValue=""/>
+	</resultMap>
+
+	<resultMap id="CustomerIdandBanMap" class="java.util.HashMap">
+        <result property="customerId" column="CUSTOMER_ID"/>
+        <result property="billingAccountNumber" column="BILLING_ACCOUNT_NUM"/>
+    </resultMap>
+    
+	<select id="customer_get_sales_opportunity_by_customer_id" resultMap="customerSalesOpportunityMap" parameterClass="long">
+		
+	SELECT  cso.cust_slsopp_id, ssca.slsopp_slschnl_asgnmt_id, cso.priority_num,
+	       cso.ad_banner_cd, sod.slsopp_desc_id, sod.lang_cd, sod.slsopp_desc,
+	       ssca.sales_channel_cd
+	  FROM 
+	    (SELECT * FROM
+	    	(SELECT   cso.customer_id, cso.cust_slsopp_id, cso.priority_num,
+	                  cso.ad_banner_cd
+	            	  FROM customer_sales_opportunity cso
+	          		  WHERE cso.customer_id = #value#  
+	       			  ORDER BY last_updt_ts DESC
+	        ) 
+	        WHERE ROWNUM <![CDATA[<=]]>  100
+	        )
+	        cso,
+	       sales_opportunity_description sod,
+	       slsopp_sales_channel_asgnmt ssca
+	 WHERE cso.cust_slsopp_id = sod.cust_slsopp_id
+	  AND cso.cust_slsopp_id = ssca.cust_slsopp_id(+)
+
+
+	</select>
+    
+    <!--		Configuration for GET_MARKETING_MESSAGE_BY_CUSTOMER_ID -->	
+	<select id="customer_get_marketing_message_by_customer_id" parameterClass="long" resultMap="marketingMessageMap">
+	SELECT MESSAGE.cust_mktg_msg_id, MESSAGE.customer_id,
+	       MESSAGE.mktg_msg_type_cd, txt.cust_mktg_msg_txt_id, txt.lang_cd,
+	       txt.mktg_msg_txt
+	  FROM (
+	       SELECT * FROM 
+	       (SELECT   MESSAGE.cust_mktg_msg_id, MESSAGE.customer_id,
+	                 MESSAGE.mktg_msg_type_cd
+	            FROM customer_marketing_message MESSAGE
+	           WHERE customer_id = #value# 
+	        ORDER BY last_updt_ts DESC) 
+	        WHERE ROWNUM <![CDATA[<=]]> 100
+	        )
+	        MESSAGE,
+	       customer_marketing_message_txt txt
+	 WHERE txt.cust_mktg_msg_id = MESSAGE.cust_mktg_msg_id
+	    
+
+    </select>
+		<!-- Configuration for get_multiple_customer_details_by_ids -->
+	<select id="customer_get_customer_details_by_id"
+        parameterClass="long" resultMap="CustomerSearchMap">
+		
+		select  
+			<![CDATA[/*+ first_rows */]]>  
+			c.CUSTOMER_ID as CustomerId,
+			c.CUST_CREATE_DT as CustomerCreationDate,
+			c.CUST_STATUS_CD as CustomerStatus,
+			c.CUST_SUBTYPE_CD as CustomerSubTypeCode,
+			c.CUST_TYPE_CD as CustomerTypeCode,
+			c.DFLT_POSTPD_PAY_CHANNEL_ID as DefaultPostpaidPayChannelId,
+			c.CUST_MASTER_SRC_ID  as CustomerMasterSourceId,
+			c.CREDIT_VAL_CD as CreditValueCode,
+			c.BILL_CYCLE_CD as BillCycleCode,
+			c.NEW_BILL_CYCLE_CD as NewBillCycleCode,
+			c.BRAND_ID as BrandId,
+	        cm.CUST_MKT_SEG_ID as CUST_MKT_SEG_ID,
+	        cm.MKT_SEG_CD as MKT_SEG_CD,
+	        cm.MKT_SEG_TYPE_CD as MKT_SEG_TYPE_CD,  
+	        ci.CUST_INDIVIDUAL_PROFL_ID as CUST_INDIVIDUAL_PROFL_ID,   	
+			ci.SALUTATION_CD as SALUTATION_CD,
+			ci.FIRST_NM as FIRST_NM,
+			ci.MIDDLE_NM as MIDDLE_NM,
+			ci.LAST_NM as LAST_NM,
+			ci.NM_SUFFIX_CD as NM_SUFFIX_CD,
+			ci.SUPPLMT_NM as SUPPLMT_NM,
+			ci.SUPPLMT_NM_OPERATING_CD as SUPPLMT_NM_OPERATING_CD,
+			ci.FULL_NM as FULL_NM,
+			ci.NM_LN_1_TXT as NM_LN_1_TXT,
+			ci.NM_LN_2_TXT as NM_LN_2_TXT,		
+			ci.HEARING_IMPR_IND as HearingImpairedInd,
+			ci.VISUALLY_IMPR_IND as VisuallyImpairedInd,
+			ci.TEAM_MBR_ID as TeamMemberId,
+			ci.TEAM_MBR_CONCESN_CD as TeamMemberConcessionCode,
+	        a.ADDR_ID as addressId,
+			a.ADDR_TYPE_CD as addressTypeCode,
+			a.UNIT_NUM as unitNumber,
+			a.CIVIC_NUM as civicNumber,
+			a.CIVIC_NUM_SFX_TXT as civicNumberSuffix,
+			a.STREET_NM as streetName,
+			a.STREET_TYPE_CD as streetTypeCode,
+			a.STREET_DIR_CD as streetDirectionCode,
+			a.MUNIC_NM as municipalityName,
+			a.PROV_STATE_CD as provinceStateCode,
+			a.POSTAL_ZIP_CD_TXT as postalZipCode,
+			a.COUNTRY_CD as countryCode,
+			a.PO_BOX_NUM as postOfficeBoxNumber,
+			a.STN_TYPE_CD as stationTypeCode,
+			a.STN_NM as stationQualifier,
+			a.RUR_RTE_NUM as ruralRouteNumber,
+			a.RUR_RTE_TYPE_CD as ruralRouteTypeCode,
+			a.HMCS_NM as hmcsName,
+			a.FLEET_MAIL_OFFC_NM as fleetMailOfficeName,
+			a.ADDNL_ADDR_INFO_1_TXT as additionalAddressInformation1,
+			a.ADDNL_ADDR_INFO_2_TXT as additionalAddressInformation2,
+			a.ADDNL_ADDR_INFO_3_TXT as additionalAddressInformation3,
+			a.ADDNL_ADDR_INFO_4_TXT as additionalAddressInformation4,
+			a.ADDNL_ADDR_INFO_1_TXT ||'|'|| a.ADDNL_ADDR_INFO_2_TXT ||'|'|| a.ADDNL_ADDR_INFO_3_TXT ||'|'|| a.ADDNL_ADDR_INFO_4_TXT as additionalAddressInformation,
+			a.EXTRNL_SERVICE_ADDR_ID as externalServiceAddressId,
+			a.EMAIL_ADDR_TXT as emailAddressText,
+			a.MAILG_TYPE_CD as mailingTypeCode,
+			a.ADDR_MATCHING_STAT_CD as addressMatchingStatusCode,
+			a.VALID_ADDR_IND as validateAddressIndicator,
+			a.RENDERED_ADDR_LN_1_TXT as renderedAddressLine1,
+			a.RENDERED_ADDR_LN_2_TXT as renderedAddressLine2,
+			a.RENDERED_ADDR_LN_3_TXT as renderedAddressLine3,
+			a.RENDERED_ADDR_LN_4_TXT as renderedAddressLine4,
+			a.RENDERED_ADDR_LN_5_TXT as renderedAddressLine5,
+			a.RENDERED_ADDR_LN_1_TXT ||'|'|| a.RENDERED_ADDR_LN_2_TXT ||'|'|| a.RENDERED_ADDR_LN_3_TXT ||'|'|| a.RENDERED_ADDR_LN_4_TXT ||'|'|| a.RENDERED_ADDR_LN_5_TXT as renderedAddressLine,
+			a.CARE_OF_TXT as careOf,
+			a.MASTER_SOURCE_ID as masterSourceId,
+			aa.ADDR_ASGNMT_TYPE_CD as addressAssignmentTypeCode,
+			aa.ADDR_ASGNMT_ID as addrAssgnmtId,
+			a.STN_AREA_NM as stationName			
+			               
+		from		         	   
+	    	CUSTOMER c
+	        
+	    	left outer join CUSTOMER_MARKET_SEGMENT cm         
+	     		on cm.CUSTOMER_ID = c.CUSTOMER_ID		
+	        
+	    	left outer join CUSTOMER_INDIVIDUAL ci         
+	     		on ci.CUSTOMER_ID = c.CUSTOMER_ID
+	     			and ci.CURRENT_IND = 'Y'      	        	     
+	        
+	    	left outer join ADDRESS_ASSIGNMENT aa
+	     		on aa.ENTITY_ID = c.CUSTOMER_ID
+	     			and aa.EFF_END_DT is NULL
+	        		and aa.ENTITY_TYPE_CD = 'CUSTOMER' 
+	    
+	    	left outer join ADDRESS a
+	     		on a.ADDR_ID = aa.ADDR_ID     	     
+	    
+	    where
+	    	c.CUSTOMER_ID = #value#
+	    	and c.CUST_STATUS_CD != 'OB'
+	    	and c.CUST_MASTER_SRC_ID <![CDATA[<>]]> 119
+                                   
+	</select>
+	
+	
+	<!--		Configuration for SEARCH_CUSTOMER_BY_CRITERIA		-->
+<select id="customer_search_customer_by_criteria"
+		parameterClass="com.telus.cmo.informationmgmt.customerods.SearchCustomerCriteriaExt" resultMap="CustomerSearchResultMap">
+	Select /*+ FIRST_ROWS(26) */ 
+	ci.CUSTOMER_ID,
+	ci.CUST_INDIVIDUAL_PROFL_ID,
+	ci.SALUTATION_CD,
+	ci.FIRST_NM,
+	ci.MIDDLE_NM,
+	ci.LAST_NM,
+	ci.NM_SUFFIX_CD,
+	ci.SUPPLMT_NM,
+	ci.SUPPLMT_NM_OPERATING_CD,
+	ci.FULL_NM,
+	ci.NM_LN_1_TXT,
+	ci.NM_LN_2_TXT
+	 
+	From
+	 	Customer_individual ci,
+	 	CUSTOMER cust
+	where 
+	<![CDATA[
+	  rowNum <= #searchResultMaxLimit# + 1 
+	]]>
+	and ci.CURRENT_IND = 'Y'
+	and ci.CUSTOMER_ID = cust.CUSTOMER_ID
+	
+	and cust.CUST_STATUS_CD != 'OB'
+	
+	and ci.MASTER_SOURCE_ID <![CDATA[<>]]> 119
+	<isNotEmpty property="customerIds" prepend="and">
+				 cust.CUSTOMER_ID in 
+					<iterate open="(" close=")" conjunction="," property="customerIds">
+						#customerIds[]#
+					</iterate>
+	</isNotEmpty>  
+	<isNotEmpty property="firstName" prepend="and">
+		upper(FIRST_NM) like upper(#firstName#)
+	</isNotEmpty>
+		
+	<isNotEmpty property="middleName" prepend="and">
+		upper(MIDDLE_NM)  like upper(#middleName#)
+	</isNotEmpty>
+ 
+	<isNotEmpty property="lastName" prepend="and">
+		upper(LAST_NM) like upper(#lastName#)
+	</isNotEmpty>
+
+	<isNotEmpty property="serviceResourceIdValue">
+	
+		<isEqual property="includePendingServiceResourceInd" compareValue="false" prepend="and">
+			ci.CUSTOMER_ID in 
+				(
+				Select si.CUSTOMER_ID from SERVICE_INSTANCE si, SERVICE_RESOURCE sr
+					where si.SERVICE_INSTANCE_ID  = sr.SERVICE_INSTANCE_ID
+					<isNotEmpty property="serviceResourceTypeCode" prepend="and">
+						sr.SERVICE_RESRC_TYPE_CD = #serviceResourceTypeCode#
+					</isNotEmpty>
+					and sr.SERVICE_RESRC_VAL_ID = #serviceResourceIdValue#  
+					<isNotEmpty property="resourceEffectiveDate" prepend="and">
+					   #resourceEffectiveDate:TIMESTAMP# <![CDATA[>=]]> sr.EFF_START_DT and #resourceEffectiveDate:TIMESTAMP# <![CDATA[<]]> nvl(sr.EFF_END_DT, Sysdate + 1)
+					</isNotEmpty>
+				)
+		</isEqual>
+		
+		<isEqual property="includePendingServiceResourceInd" compareValue="true" prepend="and">
+		ci.CUSTOMER_ID in 
+			(
+			Select cip.CUSTOMER_ID from CUSTOMER_IDENTITY_PROFILE cip, SUBSCRIBER_PRIMARY_RESOURCE spr
+					where cip.SUBSCRBR_PRIM_RESRC_ID  = spr.SUBSCRBR_PRIM_RESRC_ID 
+					<isNotEmpty property="serviceResourceTypeCode">
+						<isNotEqual property="serviceResourceTypeCode" compareValue="RID">
+							and 1 != 1
+						</isNotEqual>
+					</isNotEmpty>
+					and spr.SERVICE_RESRC_VAL_ID = #serviceResourceIdValue#  
+					<isNotEmpty property="resourceEffectiveDate" prepend="and">
+					   #resourceEffectiveDate:TIMESTAMP# <![CDATA[>=]]> cip.EFF_START_DT and #resourceEffectiveDate:TIMESTAMP# <![CDATA[<]]> nvl(cip.EFF_END_DT, Sysdate + 1)
+					</isNotEmpty>
+					
+		UNION ALL 
+			Select cip.CUSTOMER_ID 
+				from CUSTOMER_IDENTITY_PROFILE cip,	SUBSCRIBER_RESRC_CONFIG_ALIAS srca 					
+					where cip.SUBSCRBR_PRIM_RESRC_ID  = srca.SUBSCRBR_PRIM_RESRC_ID 
+					<isNotEmpty property="serviceResourceTypeCode" prepend="and">
+						SERVICE_RESRC_ALIAS_TYPE_CD = #serviceResourceTypeCode#
+					</isNotEmpty>
+					and srca.SERVICE_RESRC_ALIAS_VAL_TXT = #serviceResourceIdValue#  
+					<isNotEmpty property="resourceEffectiveDate" prepend="and">
+					   #resourceEffectiveDate:TIMESTAMP# <![CDATA[>=]]> cip.EFF_START_DT and #resourceEffectiveDate:TIMESTAMP# <![CDATA[<]]> nvl(cip.EFF_END_DT, Sysdate + 1) and
+					   #resourceEffectiveDate:TIMESTAMP# <![CDATA[>=]]> srca.EFF_START_DT and #resourceEffectiveDate:TIMESTAMP# <![CDATA[<]]> nvl(srca.EFF_END_DT, Sysdate + 1)
+					</isNotEmpty>
+					
+		UNION ALL 
+			Select cip.CUSTOMER_ID 
+				from CUSTOMER_IDENTITY_PROFILE cip,	SUBSCRIBER_RESRC_ORD_ALIAS sroa 					
+					where cip.SUBSCRBR_PRIM_RESRC_ID  = sroa.SUBSCRBR_PRIM_RESRC_ID 
+					<isNotEmpty property="serviceResourceTypeCode" prepend="and">
+						SERVICE_RESRC_ALIAS_TYPE_CD = #serviceResourceTypeCode#
+					</isNotEmpty>
+					and sroa.SERVICE_RESRC_ALIAS_VAL_TXT  = #serviceResourceIdValue#  
+					<isNotEmpty property="resourceEffectiveDate" prepend="and">
+					   #resourceEffectiveDate:TIMESTAMP# <![CDATA[>=]]> cip.EFF_START_DT and #resourceEffectiveDate:TIMESTAMP# <![CDATA[<]]> nvl(cip.EFF_END_DT, Sysdate + 1) and
+					   #resourceEffectiveDate:TIMESTAMP# <![CDATA[>=]]> sroa.EFF_START_DT and #resourceEffectiveDate:TIMESTAMP# <![CDATA[<]]> nvl(sroa.EFF_END_DT, Sysdate + 1)
+					</isNotEmpty>
+		
+		UNION ALL
+			Select si.CUSTOMER_ID 
+				from SERVICE_INSTANCE si, SERVICE_RESOURCE sr
+					where si.SERVICE_INSTANCE_ID  = sr.SERVICE_INSTANCE_ID
+					<isNotEmpty property="serviceResourceTypeCode" prepend="and">
+						sr.SERVICE_RESRC_TYPE_CD = #serviceResourceTypeCode#
+					</isNotEmpty>
+					and sr.SERVICE_RESRC_VAL_ID = #serviceResourceIdValue#  
+					<isNotEmpty property="resourceEffectiveDate" prepend="and">
+					   #resourceEffectiveDate:TIMESTAMP# <![CDATA[>=]]> sr.EFF_START_DT and #resourceEffectiveDate:TIMESTAMP# <![CDATA[<]]> nvl(sr.EFF_END_DT, Sysdate + 1)
+					</isNotEmpty>
+		)
+		</isEqual>
+	</isNotEmpty>
+
+	<isNotEmpty property="billingAccountNumber" prepend="and">
+		ci.CUSTOMER_ID in 
+			(Select ba.CUSTOMER_ID from BILLING_ACCOUNT ba
+			where ba.BILLING_ACCOUNT_NUM = #billingAccountNumber#
+			<isNotEmpty property="billingSystemId">
+				<isNotEqual property="billingSystemId" compareValue="0" prepend="and">
+					ba.BILLING_MASTER_SRC_ID = #billingSystemId#
+				</isNotEqual>
+			</isNotEmpty>
+			) 
+	</isNotEmpty>
+
+	<isNotEmpty property="contactTelephoneNumber" prepend="and">
+		ci.CUSTOMER_ID in (
+			(Select ccia.CUSTOMER_ID 
+				from CONTACT_INDVDL_TELCOM_CNTCT citc, CUST_CONTACT_INDVDL_ASGNMT ccia  
+				where citc.CONTACT_INDVDL_ID  = ccia.CONTACT_INDVDL_ID 
+				and citc.TEL_NUM = #contactTelephoneNumber#)
+			UNION
+			(Select si.CUSTOMER_ID 
+			 	from SERVICE_INSTANCE si
+			 	where si.PRIM_SRVC_RESRC_VAL_ID = #contactTelephoneNumber#)
+		 )
+	</isNotEmpty>
+
+	<isNotEmpty property="emailAddress" prepend="and">
+		ci.CUSTOMER_ID in 
+			(Select ccia.CUSTOMER_ID 
+			from CONTACT_INDVDL_ELEC_CNTCT ciec, CUST_CONTACT_INDVDL_ASGNMT ccia  
+			where ciec.CONTACT_INDVDL_ID  = ccia.CONTACT_INDVDL_ID 
+			and ciec.ELEC_ADDR_TXT  = #emailAddress#)
+	</isNotEmpty> 
+
+	and 
+	(
+		<isEmpty property="address.municipalityName" >
+			<isEmpty property="address.provinceStateCode" >
+				<isEmpty property="address.postalZipCode" >
+					<isEmpty property="address.countryCode" >
+						1 = 1 or
+	
+					</isEmpty>
+				</isEmpty>
+			</isEmpty>
+		</isEmpty>
+
+
+		ci.CUSTOMER_ID in 
+			( 
+			 Select si.CUSTOMER_ID 
+				from SERVICE_INSTANCE si, ADDRESS_ASSIGNMENT aa,
+					ADDRESS a    
+				where a.ADDR_ID = aa.ADDR_ID 
+				and si.SERVICE_INSTANCE_ID = aa.ENTITY_ID
+				and aa.ENTITY_TYPE_CD = 'SRVC_INST'
+				<isNotEmpty property="address.municipalityName" prepend="and">
+					a.MUNIC_NM =  #address.municipalityName#
+				</isNotEmpty>
+				<isNotEmpty property="address.provinceStateCode" prepend="and">
+					a.PROV_STATE_CD  =  #address.provinceStateCode#
+				</isNotEmpty>
+				<isNotEmpty property="address.postalZipCode" prepend="and">
+					a.POSTAL_ZIP_CD_TXT   =  #address.postalZipCode#
+				</isNotEmpty>
+				<isNotEmpty property="address.countryCode" prepend="and">
+					a.COUNTRY_CD   =  #address.countryCode#
+				</isNotEmpty>
+			
+		UNION ALL
+			
+			 Select bi.CUSTOMER_ID 
+				from BILLING_ACCOUNT bi, ADDRESS_ASSIGNMENT aa,
+					ADDRESS a    
+				where a.ADDR_ID = aa.ADDR_ID 
+				and bi.BILLING_ACCOUNT_ID  = aa.ENTITY_ID
+				and aa.ENTITY_TYPE_CD = 'ACCOUNT'
+				<isNotEmpty property="address.municipalityName" prepend="and">
+					a.MUNIC_NM =  #address.municipalityName#
+				</isNotEmpty>
+				<isNotEmpty property="address.provinceStateCode" prepend="and">
+					a.PROV_STATE_CD  =  #address.provinceStateCode#
+				</isNotEmpty>
+				<isNotEmpty property="address.postalZipCode" prepend="and">
+					a.POSTAL_ZIP_CD_TXT   =  #address.postalZipCode#
+				</isNotEmpty>
+				<isNotEmpty property="address.countryCode" prepend="and">
+					a.COUNTRY_CD   =  #address.countryCode#
+				</isNotEmpty>
+			)
+	)
+order by upper(LAST_NM), upper(FIRST_NM)  , upper(MIDDLE_NM)
+
+</select>
+
+<select id="customer_quick_search_customer_by_criteria"
+		parameterClass="com.telus.cmo.informationmgmt.customermgmt.QuickSearchCustomerCriteria" resultMap="CustomerQuickSearchResultMap">
+	Select
+	ba.CUSTOMER_ID,
+	ba.BILLING_ACCOUNT_NUM,
+	ba.BACCT_STATUS_CD,
+	ba.BILLING_MASTER_SRC_ID 
+	
+	from BILLING_ACCOUNT ba
+	
+	where
+		ba.BILLING_ACCOUNT_ID in
+	(
+		<isNotEmpty property="billingAccountNumber">
+			select ba1.BILLING_ACCOUNT_ID 
+			
+			from BILLING_ACCOUNT ba1
+			
+			where ba1.BILLING_ACCOUNT_NUM = #billingAccountNumber# and 
+				  ba1.BILLING_MASTER_SRC_ID in 
+					
+			<iterate open="(" close=")" conjunction="," property="billingMasterSourceIdList">
+				#billingMasterSourceIdList[]#
+			</iterate>
+		</isNotEmpty>
+	
+		<isEmpty property="billingAccountNumber">
+		
+			<isNotEmpty property="serviceTelephoneNumber">
+				select ba2.BILLING_ACCOUNT_ID 
+			
+				from BILLING_ACCOUNT ba2, SERVICE_INSTANCE si, PAY_CHANNEL pc, BILLING_ARRANGEMENT bar
+			
+				where si.PRIM_SRVC_RESRC_VAL_ID = #serviceTelephoneNumber# and 
+					  si.DFLT_RC_PAY_CHANNEL_ID = pc.PAY_CHANNEL_ID and
+				  	  pc.BILLING_ARRANGEMENT_ID = bar.BILLING_ARRANGEMENT_ID and
+				 	  bar.BILLING_ACCOUNT_ID = ba2.BILLING_ACCOUNT_ID
+					  and si.SRVC_INSTNC_STAT_CD <![CDATA[<>]]> 'C'
+					  and si.SRVC_INSTNC_STAT_CD <![CDATA[<>]]> 'L'
+					  and si.SRVC_INSTNC_STAT_CD <![CDATA[<>]]> 'T'					  
+			</isNotEmpty>
+	
+		</isEmpty>	
+	)
+</select>
+
+	<!--		Configuration for CUSTOMER_ENROLLED_IN_NPLAY		-->
+	<select 
+		id="customer_enrolled_in_nplay"
+		parameterClass="java.util.Map"
+		resultClass="int">
+		
+		SELECT COUNT (*)
+		FROM customer_subscription_group csg
+		JOIN customer_subscription cs
+			ON csg.cust_subscrptn_grp_id = cs.cust_subscrptn_grp_id
+		JOIN product_characteristic pc
+			ON cs.prod_catlg_itm_id = pc.prod_catlg_itm_id
+		WHERE cs.eff_end_dt IS NULL
+		AND pc.prod_charstc_intrnl_nm = #prodCharInternalName:VARCHAR:NONE#
+		AND pc.default_val_txt = 'Y'
+		AND csg.customer_id = #customerId:NUMERIC#
+	</select>
+	
+	<!--    Configuration for GET_CUSTOMER_ID_AND_BAN_BY_PCN     -->
+	<select id="customer_get_customer_id_and_ban_by_pcn" resultMap="CustomerIdandBanMap" parameterClass="java.util.Map">
+	
+	    SELECT bac.CUSTOMER_ID,
+	           bac.BILLING_ACCOUNT_NUM  
+	    FROM 
+	        billing_account bac,
+	        billing_arrangement bar,
+	        pay_channel pc
+	    WHERE 
+	        bac.billing_account_id = bar.billing_account_id
+	        AND bar.billing_arrangement_id = pc.billing_arrangement_id
+	        and pc.BILLING_MASTER_SRC_ID = #masterSourceId#
+	        AND pc.PAY_CHNL_NUM = #payChannelNumber#
+	        
+	</select>
+	
+	<!--		Configuration for UPDATE_CUSTOMER  -->
+	<update 
+		id="customer_update_customer" 
+		parameterClass="java.util.Map">
+	
+		Update Customer
+		
+		Set 
+		
+		<isNotNull property="customer.customerTypeCode">
+			CUST_TYPE_CD 		= #customer.customerTypeCode:VARCHAR#,
+		</isNotNull>
+		<isNotNull property="customer.customerSubTypeCode">
+			CUST_SUBTYPE_CD 	= #customer.customerSubTypeCode:VARCHAR#,
+		</isNotNull>
+		CUST_STATUS_CD		= #customer.customerStatusCode:VARCHAR#,
+		CREDIT_VAL_CD		= #customer.creditValueCode:VARCHAR#,
+		LAST_UPDT_TS 		= SYSTIMESTAMP,
+		LAST_UPDT_USER_ID 	= #auditInfo.userId:VARCHAR#
+
+		where CUSTOMER_ID = #customer.customerId:NUMERIC#
+	</update>
+	
+		
+	<!--		Configuration for customer_update_customer_status_state		-->
+	<update
+		id="customerods.customer_status_update_status"
+		parameterClass="java.util.Map">
+		
+	  	Update Customer_status
+	  	
+		Set
+		EFF_END_DT 			= SYSTIMESTAMP,
+		LAST_UPDT_TS 		= SYSTIMESTAMP,
+		LAST_UPDT_USER_ID 	= #auditInfo.userId#
+		
+		where CUSTOMER_ID = #customer.customerId:NUMERIC#
+		and EFF_END_DT is null
+	</update>
+	<!-- Configuration for EXPIRE_CUSTOMER_STATUS -->
+	<update id="expire_customer_status" 
+		parameterClass="java.util.Map">
+		UPDATE
+			CUSTOMER_STATUS
+		SET
+			EFF_END_DT = SYSDATE,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId#
+		WHERE 
+			CUSTOMER_ID = #customerId#
+			and EFF_END_DT is NULL
+	</update >
+	<!--		Configuration for CUSTOMER_INSERT_CUSTOMER_STATUS	-->
+	<insert
+		id="customer_insert_customer_status"
+		parameterClass="java.util.Map" >
+	
+		<selectKey resultClass="int" keyProperty="statusId">
+			select CUSTOMER_STATUS_ID_SEQ.NEXTVAL AS id FROM dual
+		</selectKey>
+		
+		insert into Customer_status
+		(
+			CUSTOMER_STATUS_ID, 
+			CUSTOMER_ID,
+			CUST_STATUS_CD, 
+			EFF_START_DT, 
+			DATA_SRC_ID, 
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS,
+			LAST_UPDT_USER_ID 
+		)
+	 
+		values
+		(
+			#statusId:NUMERIC#,
+			#customerId:NUMERIC#,
+			#customerStatusCd:VARCHAR#,
+			SYSDATE,
+			null, 
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#, 
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#
+		)
+	</insert>
+	
+	<!--		Configuration for customer_update_customer_status		-->
+	<update
+		id="customer_update_customer_status"
+		parameterClass="java.util.Map">
+		
+	  	update CUSTOMER
+	  	
+		set
+		CUST_STATUS_CD		= #customerStatusCd:VARCHAR#,
+		LAST_UPDT_TS 		= SYSTIMESTAMP,
+		LAST_UPDT_USER_ID 	= #auditInfo.userId#
+		
+		where CUSTOMER_ID = #customerId:NUMERIC#
+	</update>
+	
+	
+	
+	<!--		Configuration for UPDATE_CUSTOMER_INDIVIDUAL   -->
+	<update 
+		id="customer_update_customer_individual" 
+		parameterClass="java.util.Map">
+	
+		Update Customer_individual
+		
+		Set 
+		CURRENT_IND 		= 'N',
+		EFF_END_DT 			= SYSTIMESTAMP,
+		LAST_UPDT_TS 		= SYSTIMESTAMP,
+		LAST_UPDT_USER_ID	= #auditInfo.userId:VARCHAR#
+		
+		where CUSTOMER_ID = #customer.customerId:NUMERIC#
+		and CURRENT_IND = 'Y'
+	</update>
+
+
+	<!--		Configuration for INSERT_CUSTOMER_INDIVIDUAL   -->
+	<insert 
+		id="customer_insert_customer_individual"
+		parameterClass="java.util.Map">
+		
+  		<selectKey resultClass="int" keyProperty="id">
+			select CUST_INDIVIDUAL_PROFL_ID_SEQ.NEXTVAL as id from dual
+  		</selectKey>
+  		
+		insert into Customer_individual 
+		(
+			CUST_INDIVIDUAL_PROFL_ID,
+			CURRENT_IND,
+			CUSTOMER_ID,
+			MASTER_SOURCE_ID,
+			FULL_NM,
+			SALUTATION_CD,
+			FIRST_NM,
+			MIDDLE_NM,
+			LAST_NM,
+			HEARING_IMPR_IND,
+			VISUALLY_IMPR_IND,
+			TEAM_MBR_ID,
+			TEAM_MBR_CONCESN_CD,
+			EFF_START_DT,
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS, 
+			LAST_UPDT_USER_ID,
+			SUPPLMT_NM_OPERATING_CD,
+			SUPPLMT_NM,
+			NM_SUFFIX_CD,
+			NM_LN_2_TXT,
+			NM_LN_1_TXT,
+			EFF_END_DT,
+			DATA_SRC_ID
+		)
+		values 
+		(
+			#id:NUMERIC#,
+			'Y',
+			#customer.customerId:NUMERIC#,
+			#customer.customerMasterSourceId:NUMERIC#,
+			#customer.nameList[0].fullName:VARCHAR:NONE#,
+			#customer.nameList[0].salutationCode:VARCHAR:NONE#,
+			#customer.nameList[0].firstName:VARCHAR:NONE#,
+			#customer.nameList[0].middleName:VARCHAR:NONE#,
+			#customer.nameList[0].lastName:VARCHAR:NONE#,
+			#hearingImpairedInd#,
+			#visuallyImpairedInd#,
+			#customer.teamMemberId:VARCHAR:NONE#,
+			#customer.teamMemberConcessionCode:VARCHAR:NONE#,
+			SYSTIMESTAMP,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			#customer.nameList[0].supplementaryNameOperatingCode:VARCHAR:NONE#,
+			#customer.nameList[0].supplementaryName:VARCHAR:NONE#,
+			#customer.nameList[0].nameSuffixCode:VARCHAR:NONE#,
+			#customer.nameList[0].nameLine2Text:VARCHAR:NONE#,
+			#customer.nameList[0].nameLine1Text:VARCHAR:NONE#,
+			null,
+			null
+		) 
+	</insert>
+	
+	<!--	Configuration for INSERT_CUSTOMER		-->
+	<insert id="customer_insert_customer" parameterClass="java.util.Map">
+	
+		<selectKey resultClass="long" keyProperty="customerId">
+			select CUSTOMER_ID_SEQ.NEXTVAL as customerId from dual
+		</selectKey>
+		
+		insert into CUSTOMER
+		(	
+			CUSTOMER_ID, 
+			CUST_MASTER_SRC_ID, 
+			CUST_TYPE_CD, 
+			CUST_SUBTYPE_CD, 
+			CUST_STATUS_CD, 
+			CUST_CREATE_DT, 
+			DFLT_POSTPD_PAY_CHANNEL_ID,
+			CUST_HIER_NODE_ID, 
+			CREDIT_VAL_CD, 
+			BILL_CYCLE_CD, 
+			NEW_BILL_CYCLE_CD,
+			DATA_SRC_ID, 
+			CREATE_TS, 
+			CREATE_USER_ID, 
+			LAST_UPDT_TS, 
+			LAST_UPDT_USER_ID
+		) 
+		values 
+		(
+			#customerId#, 
+			#customer.customerMasterSourceId#,
+			#customer.customerTypeCode#, 
+			#customer.customerSubTypeCode#,
+			#customer.customerStatusCode#,
+			SYSDATE,
+			null,
+			#customer.customerHierarchyNodeId#,
+			#customer.creditValueCode#,
+			#customer.billCycleCode#,
+			#customer.newBillCycleCode#,
+			null,
+			SYSTIMESTAMP,
+			#auditInfo.userId#,
+			SYSTIMESTAMP,
+			#auditInfo.userId#
+		)
+	</insert>	
+	
+	<!--		Configuration for customer_update_customer_credit_value_code		-->
+	<update
+		id="customer_update_customer_credit_value_code"
+		parameterClass="java.util.Map">
+		
+	  	update CUSTOMER
+	  	
+		set
+		CREDIT_VAL_CD		= #customer.creditValueCode:VARCHAR#,
+		LAST_UPDT_TS 		= SYSTIMESTAMP,
+		LAST_UPDT_USER_ID 	= #auditInfo.userId#
+		
+		where CUSTOMER_ID = #customer.customerId:NUMERIC#
+	</update>
+
+	<!--		Configuration for customer_update_customer_billing_cycle_code		-->
+	<update
+		id="customer_update_customer_billing_cycle_code"
+		parameterClass="java.util.Map">
+		
+	  	update CUSTOMER
+	  	
+		set
+		BILL_CYCLE_CD		= #customer.billCycleCode:VARCHAR#,
+		LAST_UPDT_TS 		= SYSTIMESTAMP,
+		LAST_UPDT_USER_ID 	= #auditInfo.userId#
+		
+		where CUSTOMER_ID = #customer.customerId:NUMERIC#
+	</update>
+			
+</sqlMap>

@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="customerprofilepds">
+
+<resultMap id="result_order_alias" class="com.telus.customerprofilemgt.domain.SubscriberResourceOrderAlias">
+	<result property="id" column="SUBSCRBR_RESRC_ORD_ALIAS_ID"/>
+	<result property="subscriberResourceId" column="SUBSCRBR_PRIM_RESRC_ID" nullValue="0"/>
+	<result property="typeCode" column="SERVICE_RESRC_ALIAS_TYPE_CD"/>
+	<result property="value" column="SERVICE_RESRC_ALIAS_VAL_TXT"/>
+	<result property="versionStateCode" column="VRSN_STATE_CD"/>
+	<result property="statusCode" column="RESRC_ALIAS_STATUS_CD"/>
+	<result property="effectiveStartDate" column="EFF_START_DT"/>
+	<result property="effectiveEndDate" column="EFF_END_DT"/>
+	<result property="masterRequestSourceId" column="ORIG_CUST_RQST_MASTER_SRC_ID" nullValue="0"/>
+	<result property="masterRequestRef" column="ORIG_CUST_RQST_KEY_ID" />
+	<result property="lastUpdateTimestamp" column="LAST_UPDT_TS" />
+</resultMap>
+
+
+<!--		Configuration for GET_ORDER_ALIASES		-->
+<select id="get_order_aliases" 
+	resultMap="result_order_alias" 
+		parameterClass="java.util.Map">
+	Select 
+	SUBSCRBR_RESRC_ORD_ALIAS_ID ,
+	SUBSCRBR_PRIM_RESRC_ID ,
+	SERVICE_RESRC_ALIAS_TYPE_CD,
+	SERVICE_RESRC_ALIAS_VAL_TXT,
+	VRSN_STATE_CD,
+	RESRC_ALIAS_STATUS_CD,
+	EFF_START_DT,
+	EFF_END_DT,
+	ORIG_CUST_RQST_MASTER_SRC_ID,
+	ORIG_CUST_RQST_KEY_ID,
+	LAST_UPDT_TS
+	From
+	SUBSCRIBER_RESRC_ORD_ALIAS
+		where  SUBSCRBR_PRIM_RESRC_ID=  #resourceId# 
+		<dynamic prepend="AND">
+      		<iterate property="states"
+        		open=" VRSN_STATE_CD IN ("
+       			close=")" conjunction=",">
+        		#states[]#
+      		</iterate>
+  		</dynamic>
+		
+</select>
+
+<!--		Configuration for GET_CURRENT_ORDER_ALIASES		-->
+<select id="get_current_order_aliases_by_resource_id" 
+	resultMap="result_order_alias" 
+		parameterClass="java.lang.Long">
+	Select 
+		SUBSCRBR_RESRC_ORD_ALIAS_ID,
+		SUBSCRBR_PRIM_RESRC_ID,
+		SERVICE_RESRC_ALIAS_TYPE_CD,
+		SERVICE_RESRC_ALIAS_VAL_TXT,
+		RESRC_ALIAS_STATUS_CD,
+		VRSN_STATE_CD,
+		EFF_START_DT,
+		EFF_END_DT,
+		ORIG_CUST_RQST_MASTER_SRC_ID,
+		ORIG_CUST_RQST_KEY_ID,
+		LAST_UPDT_TS
+	From
+		SUBSCRIBER_RESRC_ORD_ALIAS
+	where  
+		SUBSCRBR_PRIM_RESRC_ID=  #value# AND
+		VRSN_STATE_CD = 'C'
+		
+</select>
+
+<!--		Configuration for GET_ORDER_ALIAS_BY_ID		-->
+<select id="get_order_alias_by_id" 
+	resultMap="result_order_alias" 
+		parameterClass="java.util.Map">
+	Select 
+		SUBSCRBR_RESRC_ORD_ALIAS_ID,
+		SUBSCRBR_PRIM_RESRC_ID,
+		SERVICE_RESRC_ALIAS_TYPE_CD,
+		SERVICE_RESRC_ALIAS_VAL_TXT,
+		RESRC_ALIAS_STATUS_CD,
+		VRSN_STATE_CD,
+		EFF_START_DT,
+		EFF_END_DT,
+		ORIG_CUST_RQST_MASTER_SRC_ID,
+		ORIG_CUST_RQST_KEY_ID,
+		LAST_UPDT_TS
+	From
+		SUBSCRIBER_RESRC_ORD_ALIAS
+	where  
+		SUBSCRBR_RESRC_ORD_ALIAS_ID=  #id# 
+</select>
+
+<!-- t836619 CR6609 -->
+<!--		Configuration for GET_ORDER_ALIASES_BY_REQUEST_REF_AND_RESOURCE_ID		-->
+<select id="get_order_aliases_by_request_ref_and_resource_id" 
+	resultMap="result_order_alias" 
+		parameterClass="java.util.Map">
+	Select 
+		SUBSCRBR_RESRC_ORD_ALIAS_ID,
+		SUBSCRBR_PRIM_RESRC_ID,
+		SERVICE_RESRC_ALIAS_TYPE_CD,
+		SERVICE_RESRC_ALIAS_VAL_TXT,
+		RESRC_ALIAS_STATUS_CD,
+		VRSN_STATE_CD,
+		EFF_START_DT,
+		EFF_END_DT,
+		ORIG_CUST_RQST_MASTER_SRC_ID,
+		ORIG_CUST_RQST_KEY_ID,
+		LAST_UPDT_TS
+	From
+		SUBSCRIBER_RESRC_ORD_ALIAS
+	where  
+		SUBSCRBR_PRIM_RESRC_ID =  #resourceId# AND
+		ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef#
+</select>
+
+<!--		Configuration for GET_CURRENT_AND_FUTURE_ORDER_ALIASES		-->
+<select id="get_current_and_future_order_aliases_by_resource_id" 
+	resultMap="result_order_alias" 
+		parameterClass="java.lang.Long">
+	Select 
+		SUBSCRBR_RESRC_ORD_ALIAS_ID,
+		SUBSCRBR_PRIM_RESRC_ID,
+		SERVICE_RESRC_ALIAS_TYPE_CD,
+		SERVICE_RESRC_ALIAS_VAL_TXT,
+		RESRC_ALIAS_STATUS_CD,
+		VRSN_STATE_CD,
+		EFF_START_DT,
+		EFF_END_DT,
+		ORIG_CUST_RQST_MASTER_SRC_ID,
+		ORIG_CUST_RQST_KEY_ID,
+		LAST_UPDT_TS
+	From
+		SUBSCRIBER_RESRC_ORD_ALIAS
+	where  
+		SUBSCRBR_PRIM_RESRC_ID=  #value# AND
+		VRSN_STATE_CD in ('C', 'F')
+	order by 
+  		VRSN_STATE_CD asc,
+  		ORIG_CUST_RQST_KEY_ID desc
+</select>
+
+
+<!--		Configuration for GET_ALL_STATE_ORDER_ALIASES_BY_RESOURCE_ID		-->
+<select id="get_all_state_order_aliases_by_resource_id" 
+	resultMap="result_order_alias" 
+		parameterClass="java.lang.Long">
+	Select 
+		SUBSCRBR_RESRC_ORD_ALIAS_ID,
+		SUBSCRBR_PRIM_RESRC_ID,
+		SERVICE_RESRC_ALIAS_TYPE_CD,
+		SERVICE_RESRC_ALIAS_VAL_TXT,
+		RESRC_ALIAS_STATUS_CD,
+		VRSN_STATE_CD,
+		EFF_START_DT,
+		EFF_END_DT,
+		ORIG_CUST_RQST_MASTER_SRC_ID,
+		ORIG_CUST_RQST_KEY_ID,
+		LAST_UPDT_TS
+	From
+		SUBSCRIBER_RESRC_ORD_ALIAS
+	where  
+		SUBSCRBR_PRIM_RESRC_ID=  #value# 
+	order by 
+  		VRSN_STATE_CD asc,
+  		ORIG_CUST_RQST_KEY_ID desc
+</select>
+
+<!--		Configuration for GET_ALL_STATE_ORDER_ALIASES_BY_RESOURCE_ALIAS_TXT		-->
+<select id="get_all_state_order_aliases_by_resource_alias_txt" 
+	resultMap="result_order_alias" 
+		parameterClass="java.util.Map">
+	Select 
+		SUBSCRBR_RESRC_ORD_ALIAS_ID,
+		SUBSCRBR_PRIM_RESRC_ID,
+		SERVICE_RESRC_ALIAS_TYPE_CD,
+		SERVICE_RESRC_ALIAS_VAL_TXT,
+		RESRC_ALIAS_STATUS_CD,
+		VRSN_STATE_CD,
+		EFF_START_DT,
+		EFF_END_DT,
+		ORIG_CUST_RQST_MASTER_SRC_ID,
+		ORIG_CUST_RQST_KEY_ID,
+		LAST_UPDT_TS
+	From
+		SUBSCRIBER_RESRC_ORD_ALIAS
+	where  
+		SERVICE_RESRC_ALIAS_VAL_TXT=  #aliasText# AND
+		SERVICE_RESRC_ALIAS_TYPE_CD= 'TN' AND
+                VRSN_STATE_CD = 'C' AND
+                RESRC_ALIAS_STATUS_CD = 'A'
+	order by 
+  		VRSN_STATE_CD asc,
+  		ORIG_CUST_RQST_KEY_ID desc
+</select>
+
+<!--		Configuration for GET_ALL_STATE_ORDER_ALIASES_BY_RESOURCE_ID_WITHOUT_ORDER_BY	-->
+<select id="get_all_state_order_aliases_by_resource_id_without_order_by" 
+	resultMap="result_order_alias" 
+		parameterClass="java.lang.Long">
+	Select 
+		SUBSCRBR_RESRC_ORD_ALIAS_ID,
+		SUBSCRBR_PRIM_RESRC_ID,
+		SERVICE_RESRC_ALIAS_TYPE_CD,
+		SERVICE_RESRC_ALIAS_VAL_TXT,
+		RESRC_ALIAS_STATUS_CD,
+		VRSN_STATE_CD,
+		EFF_START_DT,
+		EFF_END_DT,
+		ORIG_CUST_RQST_MASTER_SRC_ID,
+		ORIG_CUST_RQST_KEY_ID,
+		LAST_UPDT_TS
+	From
+		SUBSCRIBER_RESRC_ORD_ALIAS
+	where  
+		SUBSCRBR_PRIM_RESRC_ID=  #value#
+</select>
+
+<!--		Configuration for GET_ORDER_ALIAS_BY_REQUEST_REF_NUM_PART		-->
+<select id="get_order_alias_by_request_ref_num_part"
+		resultMap="result_order_alias"
+		parameterClass="java.util.Map">
+	Select
+		SUBSCRBR_RESRC_ORD_ALIAS_ID,
+		SUBSCRBR_PRIM_RESRC_ID,
+		SERVICE_RESRC_ALIAS_TYPE_CD,
+		SERVICE_RESRC_ALIAS_VAL_TXT,
+		RESRC_ALIAS_STATUS_CD,
+		VRSN_STATE_CD,
+		EFF_START_DT,
+		EFF_END_DT,
+		ORIG_CUST_RQST_MASTER_SRC_ID,
+		ORIG_CUST_RQST_KEY_ID,
+		LAST_UPDT_TS
+	From
+		SUBSCRIBER_RESRC_ORD_ALIAS
+	Where  		
+		ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+    	        ORIG_CUST_RQST_KEY_ID <![CDATA[>=]]> TO_CHAR(#masterRequestRefNumPart#) AND
+		ORIG_CUST_RQST_KEY_ID <![CDATA[<=]]> TO_CHAR(#masterRequestRefUpperLimit#)		
+</select>
+
+<!--		Configuration for INSERT_ORDER_ALIAS		-->
+<insert id="insert_order_alias" parameterClass="java.util.Map">
+  <selectKey resultClass="long" keyProperty="alias.id">
+	select SUBSCRBR_RESRC_ORD_ALS_ID_SEQ.NEXTVAL from dual
+  </selectKey>
+  insert into SUBSCRIBER_RESRC_ORD_ALIAS 
+  	(	
+	SUBSCRBR_RESRC_ORD_ALIAS_ID ,
+	SUBSCRBR_PRIM_RESRC_ID ,
+	SERVICE_RESRC_ALIAS_TYPE_CD,
+	SERVICE_RESRC_ALIAS_VAL_TXT,
+	VRSN_STATE_CD,
+	RESRC_ALIAS_STATUS_CD,
+	EFF_START_DT,
+	EFF_END_DT,
+	ORIG_CUST_RQST_MASTER_SRC_ID,
+	ORIG_CUST_RQST_KEY_ID,
+	CREATE_TS, 
+	CREATE_USER_ID, 
+	LAST_UPDT_TS, 
+	LAST_UPDT_USER_ID,
+	DATA_SRC_ID 
+ 	) 
+  values 
+    (
+	#alias.id#, 
+	#alias.subscriberResourceId:NUMERIC#,
+	#alias.typeCode:VARCHAR:NONE#, 
+	#alias.value:VARCHAR:NONE#,
+	#alias.versionStateCode:VARCHAR:NONE#,
+	#alias.statusCode:VARCHAR:NONE#,
+	#alias.effectiveStartDate:TIMESTAMP#, 
+	#alias.effectiveEndDate:TIMESTAMP#, 
+	#alias.masterRequestSourceId:NUMERIC#,
+	#alias.masterRequestRef:VARCHAR:NONE#,
+	current_timestamp,
+	#userId:VARCHAR:NONE#,
+	current_timestamp,
+	#userId:VARCHAR:NONE#,
+	#sourceId:NUMERIC#
+	)
+</insert>
+
+
+<!--		Configuration for UPDATE_ORDER_ALIAS_BY_REQUEST_REF		-->
+<update id="update_order_alias_by_request_ref" parameterClass="java.util.Map">
+  	update SUBSCRIBER_RESRC_ORD_ALIAS
+	set VRSN_STATE_CD = #newState:VARCHAR:NONE#,
+		RESRC_ALIAS_STATUS_CD=#newStatus:VARCHAR:NONE#,
+		EFF_START_DT=#effectiveStartDate:TIMESTAMP#,
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#,
+		ORIG_CUST_RQST_KEY_ID= #masterRequestRef#
+	where SUBSCRBR_PRIM_RESRC_ID=#resourceId# AND
+			VRSN_STATE_CD =#originalState# AND
+			RESRC_ALIAS_STATUS_CD=#originalStatus# AND
+			ORIG_CUST_RQST_MASTER_SRC_ID=#masterRequestSourceId# AND
+			ORIG_CUST_RQST_KEY_ID=#lastMasterRequestRef#
+</update>
+
+<!--		Configuration for UPDATE_ORDER_ALIAS_BY_REQUEST_REF		-->
+<update id="update_order_alias_by_request_ref_and_source_id" parameterClass="java.util.Map">
+  	update SUBSCRIBER_RESRC_ORD_ALIAS
+	set VRSN_STATE_CD = #newState:VARCHAR:NONE#,
+		RESRC_ALIAS_STATUS_CD=#newStatus:VARCHAR:NONE#,
+		EFF_START_DT=#effectiveStartDate:TIMESTAMP#,
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where RESRC_ALIAS_STATUS_CD=#originalStatus# AND
+			ORIG_CUST_RQST_MASTER_SRC_ID=#masterRequestSourceId# AND
+			ORIG_CUST_RQST_KEY_ID=#masterRequestRef#
+		<dynamic prepend="AND">
+      		<iterate property="originalStates"
+        		open=" VRSN_STATE_CD IN ("
+       			close=")" conjunction=",">
+        		#originalStates[]#
+      		</iterate>
+  		</dynamic>		
+			
+</update>
+
+<!--		Configuration for UPDATE_ORDER_ALIAS_BY_ID		-->
+<update id="update_order_alias_state_and_status_by_id" parameterClass="java.util.Map">
+  	update SUBSCRIBER_RESRC_ORD_ALIAS
+	set VRSN_STATE_CD = #alias.versionStateCode:VARCHAR:NONE#,
+		RESRC_ALIAS_STATUS_CD=#alias.statusCode:VARCHAR:NONE#,
+		EFF_START_DT=#alias.effectiveStartDate:TIMESTAMP#,
+		EFF_END_DT=#alias.effectiveEndDate:TIMESTAMP#,
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where SUBSCRBR_RESRC_ORD_ALIAS_ID=#alias.id# AND
+			#alias.lastUpdateTimestamp# > LAST_UPDT_TS
+			
+</update>
+
+
+<!-- t832008 - CR6609 -->
+<!--		Configuration for UPDATE_ORDER_ALIAS_STATE_STATUS_REQ_REF_BY_ID		-->
+<update id="update_order_alias_state_status_req_ref_by_id" parameterClass="java.util.Map">
+  	update SUBSCRIBER_RESRC_ORD_ALIAS
+	set VRSN_STATE_CD = #alias.versionStateCode:VARCHAR:NONE#,
+		RESRC_ALIAS_STATUS_CD=#alias.statusCode:VARCHAR:NONE#,
+		EFF_START_DT=#alias.effectiveStartDate:TIMESTAMP#,
+		EFF_END_DT=#alias.effectiveEndDate:TIMESTAMP#,
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#,
+		ORIG_CUST_RQST_MASTER_SRC_ID= #masterRequestSourceId#,
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef#
+	where SUBSCRBR_RESRC_ORD_ALIAS_ID=#alias.id# AND
+			#alias.lastUpdateTimestamp# > LAST_UPDT_TS
+</update>
+
+
+<!--		Configuration for UPDATE_ORDER_ALIAS_BY_ID		-->
+<update id="update_order_alias_by_id" parameterClass="java.util.Map">
+  	update SUBSCRIBER_RESRC_ORD_ALIAS
+	set
+		SERVICE_RESRC_ALIAS_TYPE_CD = #alias.typeCode:VARCHAR:NONE#,
+		SERVICE_RESRC_ALIAS_VAL_TXT = #alias.value:VARCHAR:NONE#,
+		VRSN_STATE_CD = #alias.versionStateCode:VARCHAR:NONE#,
+		RESRC_ALIAS_STATUS_CD=#alias.statusCode:VARCHAR:NONE#,
+		EFF_START_DT=#alias.effectiveStartDate:TIMESTAMP#,
+		EFF_END_DT=#alias.effectiveEndDate:TIMESTAMP#,
+		ORIG_CUST_RQST_MASTER_SRC_ID = #alias.masterRequestSourceId:NUMERIC#,
+		ORIG_CUST_RQST_KEY_ID = #alias.masterRequestRef:VARCHAR:NONE#,
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where 
+		SUBSCRBR_RESRC_ORD_ALIAS_ID=#alias.id# 
+			
+</update>
+
+<!--		Configuration for UPDATE_ORDER_ALIAS_BY_RESOURCE_ID		-->
+<update id="update_order_alias_by_resource_id" parameterClass="java.util.Map">
+  	update SUBSCRIBER_RESRC_ORD_ALIAS
+	set VRSN_STATE_CD = #newState:VARCHAR:NONE#,
+		RESRC_ALIAS_STATUS_CD=#newStatus:VARCHAR:NONE#,
+		<dynamic prepend="">
+			<isNotNull property="effectiveEndDate">
+				EFF_END_DT=#effectiveEndDate:TIMESTAMP#,
+			</isNotNull>
+			<isNull property="effectiveEndDate">
+				EFF_START_DT=#effectiveStartDate:TIMESTAMP#,
+				EFF_END_DT=NULL,
+			</isNull>
+		</dynamic>
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where SUBSCRBR_PRIM_RESRC_ID=#resourceId# AND
+			VRSN_STATE_CD =#originalState# AND
+			RESRC_ALIAS_STATUS_CD=#originalStatus#
+			
+</update>
+
+<!--		Configuration for UPDATE_ORDER_ALIAS_AND_REQ_REF_BY_RESOURCE_ID		-->
+<update id="update_order_alias_and_req_ref_by_resource_id" parameterClass="java.util.Map">
+  	update SUBSCRIBER_RESRC_ORD_ALIAS
+	set     VRSN_STATE_CD = #newState:VARCHAR:NONE#,
+		RESRC_ALIAS_STATUS_CD=#newStatus:VARCHAR:NONE#,
+		ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId:NUMERIC#,
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef:VARCHAR:NONE#
+		<dynamic prepend="">
+			<isNotNull property="effectiveEndDate">
+				EFF_END_DT=#effectiveEndDate:TIMESTAMP#,
+			</isNotNull>
+			<isNull property="effectiveEndDate">
+				EFF_START_DT=#effectiveStartDate:TIMESTAMP#,
+				EFF_END_DT=NULL,
+			</isNull>
+		</dynamic>
+		LAST_UPDT_TS = current_timestamp,
+		DATA_SRC_ID = #sourceId:NUMERIC#,
+		LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+	where SUBSCRBR_PRIM_RESRC_ID=#resourceId# AND
+			VRSN_STATE_CD =#originalState# AND
+			RESRC_ALIAS_STATUS_CD=#originalStatus#
+			
+</update>
+
+<delete id="delete_order_alias_by_cust_rqst_id"  parameterClass="java.util.Map">
+	delete from SUBSCRIBER_RESRC_ORD_ALIAS 
+	where 
+		SUBSCRBR_PRIM_RESRC_ID = #resourceId# AND
+		ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef#	
+</delete>
+
+<delete id="delete_order_alias_by_resource_id"  parameterClass="java.lang.Long">
+	delete from SUBSCRIBER_RESRC_ORD_ALIAS 
+	where 
+		SUBSCRBR_PRIM_RESRC_ID = #resourceId# 
+</delete>
+
+<delete id="delete_order_alias_by_id"  parameterClass="java.lang.Long">
+	delete from SUBSCRIBER_RESRC_ORD_ALIAS 
+	where 
+		SUBSCRBR_RESRC_ORD_ALIAS_ID=#value#
+</delete>
+
+<delete id="delete_obsolete_versions_order_aliases"  parameterClass="java.util.Map">
+	delete from SUBSCRIBER_RESRC_ORD_ALIAS 
+	where 
+		ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+    	        ORIG_CUST_RQST_KEY_ID <![CDATA[>=]]> TO_CHAR(#masterRequestRefNumPart#) AND
+		ORIG_CUST_RQST_KEY_ID <![CDATA[<=]]> TO_CHAR(#masterRequestRefUpperLimit#) AND		
+		NOT ORIG_CUST_RQST_KEY_ID = #masterRequestRef# AND
+		RESRC_ALIAS_STATUS_CD = 'P' 
+</delete>
+
+<delete id="delete_obsolete_versions_order_aliases_by_resource"  parameterClass="java.util.Map">
+	delete from SUBSCRIBER_RESRC_ORD_ALIAS 
+	where 
+		ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+		ORIG_CUST_RQST_KEY_ID <![CDATA[>=]]> #masterRequestRefNumPart# AND
+		ORIG_CUST_RQST_KEY_ID <![CDATA[<=]]> #masterRequestRefUpperLimit# AND
+		SUBSCRBR_PRIM_RESRC_ID = #resourceId# AND
+		VRSN_STATE_CD = 'F' AND
+		RESRC_ALIAS_STATUS_CD = 'P' 
+</delete>
+
+<select id="get_ceased_order_aliases_by_resource_id" 
+	resultMap="result_order_alias" 
+		parameterClass="java.lang.Long">
+	Select 
+		SUBSCRBR_RESRC_ORD_ALIAS_ID,
+		SUBSCRBR_PRIM_RESRC_ID,
+		SERVICE_RESRC_ALIAS_TYPE_CD,
+		SERVICE_RESRC_ALIAS_VAL_TXT,
+		RESRC_ALIAS_STATUS_CD,
+		VRSN_STATE_CD,
+		EFF_START_DT,
+		EFF_END_DT,
+		ORIG_CUST_RQST_MASTER_SRC_ID,
+		ORIG_CUST_RQST_KEY_ID,
+		LAST_UPDT_TS
+	From
+		SUBSCRIBER_RESRC_ORD_ALIAS
+	where  
+		SUBSCRBR_PRIM_RESRC_ID=  #value# AND
+		VRSN_STATE_CD = 'H' AND
+		RESRC_ALIAS_STATUS_CD = 'C'
+		
+</select>
+
+
+
+</sqlMap>
+

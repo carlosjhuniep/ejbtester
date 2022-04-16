@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+	"http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="customerprofilepds">
+
+<resultMap id="result_subscriber_resource" class="com.telus.customerprofilemgt.domain.SubscriberResource">
+	<result property="id" column="SUBSCRBR_PRIM_RESRC_ID"/>
+	<result property="serviceInstanceId" column="SERVICE_INSTANCE_ID" nullValue="0"/>
+	<result property="newServiceInstanceId" column="NEW_SERVICE_INSTANCE_ID" nullValue="0"/>
+	<result property="serviceTypeCode" column="SERVICE_TYPE_CD"/>
+	<result property="serviceResourceValueId" column="SERVICE_RESRC_VAL_ID"/>
+	<result property="statusCode" column="SUBSCRBR_RESRC_STATUS_CD"/>
+	<result property="statusDate" column="SUBSCRBR_RESRC_STATUS_DT"/>
+	<result property="masterRequestSourceId" column="ORIG_CUST_RQST_MASTER_SRC_ID" nullValue="0"/>
+	<result property="masterRequestRef" column="ORIG_CUST_RQST_KEY_ID"/>
+	<result property="lastUpdateTimestamp" column="LAST_UPDT_TS"/>
+</resultMap>
+
+
+<!--		Configuration for GET_SUBSCRIBER_RESOURCE_BY_SERVICE_TYPE		-->
+<select id="get_subscriber_resource_by_service_type"
+		resultMap="result_subscriber_resource"
+		parameterClass="java.util.Map">
+		Select
+			SUBSCRBR_PRIM_RESRC_ID,
+			SERVICE_INSTANCE_ID,
+			NEW_SERVICE_INSTANCE_ID,
+			SERVICE_TYPE_CD,
+			SERVICE_RESRC_VAL_ID,
+			SUBSCRBR_RESRC_STATUS_CD,
+			SUBSCRBR_RESRC_STATUS_DT,
+			ORIG_CUST_RQST_MASTER_SRC_ID,
+			ORIG_CUST_RQST_KEY_ID,
+			LAST_UPDT_TS
+		
+		From
+			SUBSCRIBER_PRIMARY_RESOURCE
+		Where
+			SERVICE_TYPE_CD = #serviceType# AND
+		    SERVICE_RESRC_VAL_ID = #resourceValueId#
+
+</select>
+
+<!--		Configuration for GET_SUBSCRIBER_RESOURCE_BY_RESOURCE_ID		-->
+<select id="get_subscriber_resource_by_resource_id"
+		resultMap="result_subscriber_resource"
+		parameterClass="java.lang.Long">
+		Select
+
+			SUBSCRBR_PRIM_RESRC_ID,
+			SERVICE_INSTANCE_ID,
+			NEW_SERVICE_INSTANCE_ID,
+			SERVICE_TYPE_CD,
+			SERVICE_RESRC_VAL_ID,
+			SUBSCRBR_RESRC_STATUS_CD,
+			SUBSCRBR_RESRC_STATUS_DT,
+			ORIG_CUST_RQST_MASTER_SRC_ID,
+			ORIG_CUST_RQST_KEY_ID,
+			LAST_UPDT_TS
+
+		From
+			SUBSCRIBER_PRIMARY_RESOURCE
+		Where
+			SUBSCRBR_PRIM_RESRC_ID = #value#
+</select>
+
+<!--		Configuration for GET_SUBSCRIBER_RESOURCES_BY_REQUEST_REF_NUM_PART		-->
+<select id="get_subscriber_resources_by_request_ref_num_part"
+		resultMap="result_subscriber_resource"
+		parameterClass="java.util.Map">
+	Select
+		SUBSCRBR_PRIM_RESRC_ID,
+		SERVICE_INSTANCE_ID,
+		NEW_SERVICE_INSTANCE_ID,
+		SERVICE_TYPE_CD,
+		SERVICE_RESRC_VAL_ID,
+		SUBSCRBR_RESRC_STATUS_CD,
+		SUBSCRBR_RESRC_STATUS_DT,
+		ORIG_CUST_RQST_MASTER_SRC_ID,
+		ORIG_CUST_RQST_KEY_ID,
+		LAST_UPDT_TS
+	From
+		SUBSCRIBER_PRIMARY_RESOURCE
+	Where  		
+		ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+   	        ORIG_CUST_RQST_KEY_ID <![CDATA[>=]]> TO_CHAR(#masterRequestRefNumPart#) AND
+		ORIG_CUST_RQST_KEY_ID <![CDATA[<=]]> TO_CHAR(#masterRequestRefUpperLimit#)		
+</select>
+
+
+<!--		Configuration for STAT_ID_UPDATE_RESOURCE_STATUS_BY_PRIMARY_RESOURCE_ID		-->
+<!--  t832008 - CR6609  -->
+<update id="update_resource_status_by_primary_resource_id"
+		parameterClass="java.util.Map">
+
+		Update
+			SUBSCRIBER_PRIMARY_RESOURCE
+		Set
+			SUBSCRBR_RESRC_STATUS_CD = #newStatus:VARCHAR:NONE#,
+			SUBSCRBR_RESRC_STATUS_DT = #statusDate:TIMESTAMP#,
+			LAST_UPDT_TS = systimestamp,
+			DATA_SRC_ID = #sourceId:NUMERIC#,
+			LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+			
+		Where
+			SUBSCRBR_PRIM_RESRC_ID = #resourceId# AND
+			SUBSCRBR_RESRC_STATUS_CD = #status#
+</update>
+
+
+<update id="update_resource_status_by_request_ref"
+		parameterClass="java.util.Map">
+
+		Update
+			SUBSCRIBER_PRIMARY_RESOURCE
+		Set
+			SUBSCRBR_RESRC_STATUS_CD = #newStatus:VARCHAR:NONE#,
+			SUBSCRBR_RESRC_STATUS_DT = #statusDate:TIMESTAMP#,
+			LAST_UPDT_TS = systimestamp,
+			DATA_SRC_ID = #sourceId:NUMERIC#,
+			LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+			
+		Where
+			SUBSCRBR_PRIM_RESRC_ID = #resourceId# AND
+			SUBSCRBR_RESRC_STATUS_CD = #status# AND
+			ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+			ORIG_CUST_RQST_KEY_ID =#masterRequestRef#
+
+</update>
+
+
+<update id="update_resource_status_by_request_ref_and_source_id"
+		parameterClass="java.util.Map">
+
+		Update
+			SUBSCRIBER_PRIMARY_RESOURCE
+		Set
+			SUBSCRBR_RESRC_STATUS_CD = #newStatus:VARCHAR:NONE#,
+			SUBSCRBR_RESRC_STATUS_DT = #statusDate:TIMESTAMP#,
+			LAST_UPDT_TS = systimestamp,
+			DATA_SRC_ID = #sourceId:NUMERIC#,
+			LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+			
+		Where
+			SUBSCRBR_RESRC_STATUS_CD = #status# AND
+			ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+			ORIG_CUST_RQST_KEY_ID =#masterRequestRef#
+
+</update>
+
+
+<update id="update_resource_status_by_resource_id"
+		parameterClass="java.util.Map">
+
+		Update
+			SUBSCRIBER_PRIMARY_RESOURCE
+		Set
+			SUBSCRBR_RESRC_STATUS_CD = #newStatus:VARCHAR:NONE#,
+			SUBSCRBR_RESRC_STATUS_DT = #statusDate:TIMESTAMP#,
+			<isNotNull property ="serviceInstanceId" >
+			SERVICE_INSTANCE_ID = #serviceInstanceId:NUMERIC#,
+			NEW_SERVICE_INSTANCE_ID = null,
+			</isNotNull>
+			ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId:NUMERIC#,
+			ORIG_CUST_RQST_KEY_ID =#masterRequestRef:VARCHAR:NONE#,
+			LAST_UPDT_TS = systimestamp,
+			DATA_SRC_ID = #sourceId:NUMERIC#,
+			LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+
+		Where
+			SUBSCRBR_PRIM_RESRC_ID = #resourceId# 
+			<dynamic prepend="AND">
+      			<iterate property="statuses" open=" SUBSCRBR_RESRC_STATUS_CD IN ("
+       					close=")" conjunction=",">
+        			#statuses[]#
+      			</iterate>
+  		</dynamic>
+
+</update>
+
+
+<update id="update_by_resource_id"
+		parameterClass="java.util.Map">
+
+		Update
+			SUBSCRIBER_PRIMARY_RESOURCE
+		Set
+			SUBSCRBR_RESRC_STATUS_CD = #newStatus:VARCHAR:NONE#,
+			<isNotNull property ="serviceInstanceId" >
+			SERVICE_INSTANCE_ID = #serviceInstanceId:NUMERIC#,
+			NEW_SERVICE_INSTANCE_ID = null,
+			</isNotNull>
+			ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId:NUMERIC#,
+			LAST_UPDT_TS = systimestamp,
+			DATA_SRC_ID = #sourceId:NUMERIC#,
+			LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+
+		Where
+			SUBSCRBR_PRIM_RESRC_ID = #resourceId# 
+			<dynamic prepend="AND">
+      			<iterate property="statuses" open=" SUBSCRBR_RESRC_STATUS_CD IN ("
+       					close=")" conjunction=",">
+        			#statuses[]#
+      			</iterate>
+  		</dynamic>
+
+</update>
+
+
+<insert id="insert_subscriber_resource"
+		parameterClass="java.util.Map">
+		<selectKey resultClass="long" keyProperty="resource.id">
+			Select SUBSCRBR_PRIM_RESRC_ID_SEQ.NextVal  as id from dual
+		</selectKey>
+		Insert into  
+		
+			SUBSCRIBER_PRIMARY_RESOURCE (		
+			
+			SUBSCRBR_PRIM_RESRC_ID,
+			SERVICE_INSTANCE_ID,	
+			SERVICE_TYPE_CD,
+			SERVICE_RESRC_VAL_ID,
+			NEW_SERVICE_INSTANCE_ID,
+			SUBSCRBR_RESRC_STATUS_CD,
+			SUBSCRBR_RESRC_STATUS_DT,
+			ORIG_CUST_RQST_MASTER_SRC_ID,
+			ORIG_CUST_RQST_KEY_ID,
+			DATA_SRC_ID,
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS,
+			LAST_UPDT_USER_ID
+			)
+		
+		Values (
+			#resource.id#,
+			#resource.serviceInstanceId:NUMERIC#,
+			#resource.serviceTypeCode:VARCHAR:NONE#,
+			#resource.serviceResourceValueId:VARCHAR:NONE#,
+			#resource.newServiceInstanceId:NUMERIC#,
+			#resource.statusCode:VARCHAR:NONE#,
+			#resource.statusDate:TIMESTAMP#,
+			#resource.masterRequestSourceId:NUMERIC#,
+			#resource.masterRequestRef:VARCHAR:NONE#,
+			#sourceId:NUMERIC#,
+			systimestamp,
+			#userId:VARCHAR:NONE#,
+			systimestamp,
+			#userId:VARCHAR:NONE#
+		)
+</insert>
+
+<delete id="delete_resource_by_request_ref"  parameterClass="java.util.Map">
+	delete from SUBSCRIBER_PRIMARY_RESOURCE 
+	where 
+		SUBSCRBR_PRIM_RESRC_ID = #resourceId# AND
+		ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+		ORIG_CUST_RQST_KEY_ID = #masterRequestRef#	
+</delete>
+
+<delete id="delete_resource_by_resource_value_id_and_service_type"  parameterClass="java.util.Map">
+	delete from SUBSCRIBER_PRIMARY_RESOURCE 
+	where 
+		SERVICE_RESRC_VAL_ID = #serviceResourceValueId# AND
+		SERVICE_TYPE_CD = #serviceTypeCode#	
+</delete>
+
+<delete id="delete_obsolete_versions_resources"  parameterClass="java.util.Map">
+	delete from SUBSCRIBER_PRIMARY_RESOURCE 
+	where 
+		ORIG_CUST_RQST_MASTER_SRC_ID = #masterRequestSourceId# AND
+   	        ORIG_CUST_RQST_KEY_ID <![CDATA[>=]]> TO_CHAR(#masterRequestRefNumPart#) AND
+		ORIG_CUST_RQST_KEY_ID <![CDATA[<=]]> TO_CHAR(#masterRequestRefUpperLimit#) AND		
+		NOT ORIG_CUST_RQST_KEY_ID = #masterRequestRef# AND
+		SUBSCRBR_RESRC_STATUS_CD ='P'	
+</delete>
+
+<delete id="delete_subscriber_resource_by_id"  parameterClass="java.lang.Long">
+	delete from SUBSCRIBER_PRIMARY_RESOURCE 
+	where SUBSCRBR_PRIM_RESRC_ID = #value#
+</delete>
+
+<update id="update_resource_by_id"
+		parameterClass="java.util.Map">
+		Update
+			SUBSCRIBER_PRIMARY_RESOURCE
+		Set
+			SERVICE_INSTANCE_ID = #resource.serviceInstanceId:NUMERIC#,
+			NEW_SERVICE_INSTANCE_ID = #resource.newServiceInstanceId:NUMERIC#,
+			SERVICE_TYPE_CD = #resource.serviceTypeCode:VARCHAR:NONE#,
+			SERVICE_RESRC_VAL_ID = #resource.serviceResourceValueId:VARCHAR:NONE#,
+			SUBSCRBR_RESRC_STATUS_CD = #resource.statusCode:VARCHAR:NONE#,
+			SUBSCRBR_RESRC_STATUS_DT = #resource.statusDate:TIMESTAMP#,
+			ORIG_CUST_RQST_MASTER_SRC_ID = #resource.masterRequestSourceId:NUMERIC#,
+			ORIG_CUST_RQST_KEY_ID = #resource.masterRequestRef:VARCHAR:NONE#,
+			LAST_UPDT_TS = systimestamp,
+			DATA_SRC_ID = #sourceId:NUMERIC#,
+			LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+
+		Where
+			SUBSCRBR_PRIM_RESRC_ID = #resource.id#
+			And
+			#resource.lastUpdateTimestamp# > LAST_UPDT_TS 
+</update>
+
+<update id="update_new_service_instance_id_to_null_by_svc_res_val_id"
+		parameterClass="java.util.Map">
+
+		Update
+			SUBSCRIBER_PRIMARY_RESOURCE
+		Set
+			NEW_SERVICE_INSTANCE_ID = NULL,
+			LAST_UPDT_TS = systimestamp,
+			DATA_SRC_ID = #sourceId:NUMERIC#,
+			LAST_UPDT_USER_ID = #userId:VARCHAR:NONE#
+		Where
+			SERVICE_RESRC_VAL_ID=#serviceResourceValueId#
+</update>
+
+</sqlMap>

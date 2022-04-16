@@ -1,0 +1,1182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="customerods">
+
+	<!-- Configuration for GET_BILLING_ACCOUNT_ID_BY_EXTERNAL_ID -->
+	<select id="billing_get_billing_arrangement_id_by_account_id" resultClass="int" parameterClass="long">
+		SELECT BILLING_ARRANGEMENT_ID FROM (
+		    SELECT BILLING_ARRANGEMENT_ID,
+		    RANK() OVER (PARTITION BY
+		    BILLING_ACCOUNT_ID ORDER BY billing_arrngmt_status_dt desc) RANK_BILL_ARR_STAT_DT
+		    FROM BILLING_ARRANGEMENT
+		    WHERE BILLING_ACCOUNT_ID = #value:NUMERIC#
+		    )
+		WHERE RANK_BILL_ARR_STAT_DT = 1		
+	</select>
+	
+	<!-- Configuration for INSERT_BILLING_ACCOUNT -->
+	<insert id="billing_insert_billing_account_details" parameterClass="java.util.Map">
+		<selectKey resultClass="long" keyProperty="account.billingAccountId">
+			select BILLING_ACCOUNT_ID_SEQ.NEXTVAL AS id from dual
+		</selectKey>
+	
+		INSERT INTO BILLING_ACCOUNT (
+			BILLING_ACCOUNT_ID,
+			BILLING_MASTER_SRC_ID,
+			BILLING_ACCOUNT_NUM,
+			CUSTOMER_ID,
+			BACCT_CHK_DGT_NUM,
+			<isNotNull property="account.openDate">
+				BACCT_OPEN_DT, 
+			</isNotNull>
+			BACCT_STATUS_CD,
+			<isNotNull property="account.statusDate">
+				BACCT_STATUS_DT,
+			</isNotNull>
+			BILLING_CURRCY_CD,
+			CURR_BAL_AMT,
+			RISK_IND_CD,
+			<isNotNull property="account.collectionStartDate">
+				COLL_START_DT,
+			</isNotNull>
+			COLL_IND,
+			<isNotNull property="account.followUpDate">
+				COLL_FOLLOWUP_DT,
+			</isNotNull>
+			<isNotNull property="account.suppressionStartDate">
+				AUTOTRTMT_SUPPRESS_START_DT,
+			</isNotNull>
+			<isNotNull property="account.suppressionEndDate">
+				AUTOTRTMT_SUPPRESS_END_DT,
+			</isNotNull>
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS,
+			LAST_UPDT_USER_ID,
+			BRAND_ID,
+			BILL_CYCLE_CD,
+			NEW_BILL_CYCLE_CD
+		)
+		VALUES (
+			#account.billingAccountId:NUMERIC#,
+			#account.billingMasterSourceId:NUMERIC#,
+			#account.billingAccountNumber:NUMERIC#,
+			#account.customerId:NUMERIC#,
+			#account.checkDigitNumber:VARCHAR#,
+			<isNotNull property="account.openDate">
+				#account.openDate:TIMESTAMP#,
+			</isNotNull>
+			#account.statusCode:VARCHAR#,
+			<isNotNull property="account.statusDate">
+				#account.statusDate:TIMESTAMP#,
+			</isNotNull>
+			#account.currencyCode:VARCHAR#,
+			#account.currentBalanceAmount:NUMERIC#,
+			#account.riskIndicatorCode:VARCHAR#,
+			<isNotNull property="account.collectionStartDate">
+				#account.collectionStartDate:TIMESTAMP#,
+			</isNotNull>
+			#account.collectionsInd:VARCHAR#,
+			<isNotNull property="account.followUpDate">
+				#account.followUpDate:TIMESTAMP#,
+			</isNotNull>
+			<isNotNull property="account.suppressionStartDate">
+				#account.suppressionStartDate:TIMESTAMP#,
+			</isNotNull>
+			<isNotNull property="account.suppressionEndDate">
+				#account.suppressionEndDate:TIMESTAMP#,
+			</isNotNull>
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			#account.brandId:NUMERIC#,
+			#account.billCycleCode:VARCHAR#,
+			#account.newBillCycleCode:VARCHAR#
+		)
+	</insert>
+	
+	<!--		Configuration for UPDATE_CUSTOMERID_IN_BILLING_ACCOUNT		-->
+	<update id="billing_update_customerid_in_billing_account" parameterClass="java.util.Map">
+		UPDATE BILLING_ACCOUNT
+		SET CUSTOMER_ID = #toCustomerId:NUMERIC#,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId:VARCHAR#
+		WHERE CUSTOMER_ID = #customerId:NUMERIC# 
+	</update>
+	
+	
+	<!--		Configuration for UPDATE_BILLING_ACCOUNT_DETAILS		-->
+	<update id="billing_update_billing_account_details" parameterClass="java.util.Map">
+		Update BILLING_ACCOUNT
+		set
+			<isNotNull property="account.statusCode">	
+			 BACCT_STATUS_CD = #account.statusCode:VARCHAR#,
+			</isNotNull>			
+			BACCT_STATUS_DT = #account.statusDate:TIMESTAMP#,
+			CURR_BAL_AMT = 	#account.currentBalanceAmount:NUMERIC#,
+			RISK_IND_CD = #account.riskIndicatorCode:VARCHAR#,
+			AUTOTRTMT_SUPPRESS_START_DT = #account.suppressionStartDate:TIMESTAMP#,
+			AUTOTRTMT_SUPPRESS_END_DT =  #account.suppressionEndDate:TIMESTAMP#,	
+			COLL_START_DT = #account.collectionStartDate:TIMESTAMP#,		
+			COLL_IND = #collectionsInd:VARCHAR:NONE#,							
+			COLL_FOLLOWUP_DT = #account.followUpDate:TIMESTAMP#,
+			BILL_CYCLE_CD= #account.billCycleCode:VARCHAR#,
+			<isNotNull property="account.brandId">
+			BRAND_ID= #account.brandId:NUMERIC#,
+			</isNotNull>
+			BACCT_CHK_DGT_NUM= #account.checkDigitNumber:VARCHAR#,
+			NEW_BILL_CYCLE_CD= #account.newBillCycleCode:VARCHAR#,
+			BILLING_CURRCY_CD= #account.currencyCode:VARCHAR#,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId:VARCHAR#
+		Where BILLING_ACCOUNT_NUM = #account.billingAccountNumber:NUMERIC# 
+			AND BILLING_MASTER_SRC_ID  = #account.billingMasterSourceId:NUMERIC#
+	</update>
+	
+	
+	<!--		Configuration for UPDATE_BILLING_ACCOUNT_STATUS		-->
+	<update id="billing_update_billing_account_status" parameterClass="java.util.Map">
+		Update BILLING_ACCOUNT
+		set BACCT_STATUS_CD = #account.statusCode:VARCHAR#,
+			<isNotNull property="account.statusDate">
+			BACCT_STATUS_DT = #account.statusDate:TIMESTAMP#,
+			</isNotNull>
+			<isNull property="account.statusDate">
+			BACCT_STATUS_DT = SYSDATE,
+			</isNull>
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId:VARCHAR#
+		Where BILLING_ACCOUNT_NUM = #account.billingAccountNumber:NUMERIC# 
+			AND BILLING_MASTER_SRC_ID  = #account.billingMasterSourceId:NUMERIC#
+	</update>
+	
+	
+	<!--		Configuration for INSERT_BILLING_NAME	 	-->
+	<insert id="billing_insert_billing_name" parameterClass="java.util.Map">
+			
+		<selectKey resultClass="long" keyProperty="name.nameId">
+		select BILLING_NM_ID_SEQ.NEXTVAL AS id from dual
+		</selectKey>
+		
+		insert into BILLING_NAME 
+		(
+			BILLING_NM_ID, 
+			BILLING_ACCOUNT_ID, 
+			FULL_NM, 
+			SALUTATION_CD, 
+			FIRST_NM, 
+			MIDDLE_NM, 
+			LAST_NM, 
+			NM_SUFFIX_CD, 
+			SUPPLMT_NM, 
+			SUPPLMT_NM_OPERATING_CD, 
+			NM_LN_1_TXT, 
+			NM_LN_2_TXT, 
+			CREATE_TS, 
+			CREATE_USER_ID, 
+			LAST_UPDT_TS, 
+			LAST_UPDT_USER_ID,
+			MASTER_SOURCE_ID
+		) 
+		values 
+		(
+			#name.nameId:NUMERIC#,
+			#entityId:NUMERIC#,
+			#name.fullName:VARCHAR#,
+			#name.salutationCode:VARCHAR#,
+			#name.firstName:VARCHAR#,
+			#name.middleName:VARCHAR#,
+			#name.lastName:VARCHAR#,
+			#name.nameSuffixCode:VARCHAR#,
+			#name.supplementaryName:VARCHAR#,
+			#name.supplementaryNameOperatingCode:VARCHAR#,
+			#name.nameLine1Text:VARCHAR#,
+			#name.nameLine2Text:VARCHAR#,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			#name.masterSourceId:NUMERIC#
+		)
+		
+	</insert>
+	
+	
+	<!--		Configuration for UPDATE_BILLING_NAME		-->
+	<update id="billing_update_billing_name" parameterClass="java.util.Map">
+		Update BILLING_NAME 
+		set 
+			FULL_NM = #name.fullName:VARCHAR#,
+			SALUTATION_CD = #name.salutationCode:VARCHAR#,
+			FIRST_NM= #name.firstName:VARCHAR#,
+			MIDDLE_NM= #name.middleName:VARCHAR#,
+			LAST_NM= #name.lastName:VARCHAR#,
+			NM_SUFFIX_CD= #name.nameSuffixCode:VARCHAR#,
+			SUPPLMT_NM = #name.supplementaryName:VARCHAR#,
+			SUPPLMT_NM_OPERATING_CD= #name.supplementaryNameOperatingCode:VARCHAR#,
+			NM_LN_1_TXT = #name.nameLine1Text:VARCHAR#,
+			NM_LN_2_TXT = #name.nameLine2Text:VARCHAR#,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId:VARCHAR#
+		where BILLING_ACCOUNT_ID = #entityId:NUMERIC#
+	</update>
+	
+	
+	<!--		Configuration for INSERT_BILLING_ARRANGEMENT		-->
+	<insert id="billing_insert_billing_arrangement" parameterClass="java.util.Map">
+	<selectKey resultClass="int" keyProperty="id">
+		select BILLING_ARRANGEMENT_ID_SEQ.NEXTVAL AS id from dual
+	</selectKey>
+
+		insert into BILLING_ARRANGEMENT
+		(
+			BILLING_ARRANGEMENT_ID,
+			BILLING_MASTER_SRC_ID,
+			BILLING_ARRANGEMENT_NUM,
+			BILLING_ACCOUNT_ID,
+			<isNotNull property="account.openDate">
+				BILLING_ARRNGMT_OPEN_DT, 
+			</isNotNull>
+			BILLING_ARRNGMT_STATUS_CD,
+			<isNotNull property="account.statusDate">
+				BILLING_ARRNGMT_STATUS_DT, 
+			</isNotNull>
+			BILL_INSRT_SUPPRESS_IND,
+			BILL_RTN_ENVELOPE_CD,
+			BILL_REDIR_OPR_ID,
+			BILL_REDIR_OPR_NM,
+			BILL_REDIR_ADDR_TXT,
+			BILL_REDIR_RSN_CD,
+			<isNotNull property="account.billRedirectEffectiveStartDate">
+				BILL_REDIR_EFF_START_DT,
+			</isNotNull>
+			<isNotNull property="account.billRedirectEffectiveEndDate">
+				BILL_REDIR_EFF_END_DT,
+			</isNotNull>
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS,
+			LAST_UPDT_USER_ID
+		)
+		values
+		(
+			#id:NUMERIC#,
+			#account.billingMasterSourceId:NUMERIC#,
+			#account.billingAccountNumber:VARCHAR#,
+			#account.billingAccountId:NUMERIC#,
+			<isNotNull property="account.openDate">
+				#account.openDate:TIMESTAMP#,
+			</isNotNull>
+			#account.statusCode:VARCHAR#,
+			<isNotNull property="account.statusDate">
+				#account.statusDate:TIMESTAMP#,
+			</isNotNull>
+			#account.billInsertSuppressionIndicator:VARCHAR#,
+			#account.billReturnEnvelopeCode:VARCHAR#,
+			#account.billRedirectOperatorId:VARCHAR#,
+			#account.billRedirectOperatorName:VARCHAR#,
+			#account.billRedirectAddressText:VARCHAR#,
+			#account.billRedirectReasonCode:VARCHAR#,
+			<isNotNull property="account.billRedirectEffectiveStartDate">
+				#account.billRedirectEffectiveStartDate:TIMESTAMP#,
+			</isNotNull>
+			<isNotNull property="account.billRedirectEffectiveEndDate">
+				#account.billRedirectEffectiveEndDate:TIMESTAMP#,
+			</isNotNull>
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#
+		)
+	</insert>
+	
+	
+	<!--		Configuration for UPDATE_BILLING_ARRANGEMENT		-->
+	<update id="billing_update_billing_arrangement" parameterClass="java.util.Map">
+		Update BILLING_ARRANGEMENT 
+		set 
+			<isNotNull property="account.billInsertSuppressionIndicator">
+			BILL_INSRT_SUPPRESS_IND = #account.billInsertSuppressionIndicator:VARCHAR#,
+			</isNotNull>
+			BILL_RTN_ENVELOPE_CD = #account.billReturnEnvelopeCode:VARCHAR#,
+			BILL_REDIR_OPR_ID = #account.billRedirectOperatorId:VARCHAR#,
+			BILL_REDIR_OPR_NM = #account.billRedirectOperatorName:VARCHAR#,
+			BILL_REDIR_ADDR_TXT = #account.billRedirectAddressText:VARCHAR#,
+			BILL_REDIR_RSN_CD = #account.billRedirectReasonCode:VARCHAR#,
+			BILL_REDIR_EFF_START_DT = #account.billRedirectEffectiveStartDate:TIMESTAMP#,			
+			BILL_REDIR_EFF_END_DT = #account.billRedirectEffectiveEndDate:TIMESTAMP#,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId:VARCHAR#
+		Where BILLING_ACCOUNT_ID = #account.billingAccountId:NUMERIC#
+	</update>
+
+	
+	<!--		Configuration for INSERT_BILLING_ACCOUNT_EXT		-->
+	<insert id="billing_insert_billing_account_extension" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.Long" keyProperty="accountExt.billingAccountExtensionId">
+			select BILLING_ACCOUNT_EXT_ID_SEQ.NEXTVAL AS id from dual
+		</selectKey>
+
+		INSERT INTO BILLING_ACCOUNT_EXT
+		(
+			BILLING_ACCOUNT_EXT_ID,
+			BILLING_ACCOUNT_ID,
+			MASTER_SOURCE_ID,
+			SOURCE_ACCOUNT_TYPE_CD,
+			SOURCE_ACCOUNT_SUBTYPE_CD,
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS,
+			LAST_UPDT_USER_ID
+		)
+		values
+		(
+			#accountExt.billingAccountExtensionId:NUMERIC#,
+			#accountExt.billingAccountId:NUMERIC#,
+			#accountExt.masterSourceId:NUMERIC#,
+			#accountExt.sourceAccountTypeCode:VARCHAR#,
+			#accountExt.sourceAccountSubTypeCode:VARCHAR#,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#
+		)
+	</insert>
+	
+	
+	<!--		Configuration for UPDATE_BILLING_ACCOUNT_EXT		-->
+	<update id="billing_update_billing_account_extension" parameterClass="java.util.Map">
+		UPDATE BILLING_ACCOUNT_EXT 
+		set 
+			SOURCE_ACCOUNT_TYPE_CD = #accountExt.sourceAccountTypeCode:VARCHAR#,
+			SOURCE_ACCOUNT_SUBTYPE_CD = #accountExt.sourceAccountSubTypeCode:VARCHAR#,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId:VARCHAR#
+		Where BILLING_ACCOUNT_ID = #accountExt.billingAccountId:NUMERIC#
+	</update>
+	
+	
+	<!--		Configuration for INSERT_BILL_MEDIA		-->
+	<insert id="billing_insert_bill_media" parameterClass="java.util.Map">
+		<selectKey resultClass="int" keyProperty="billMedia.id">
+			select BILL_PRESMENT_MED_CSTC_ID_SEQ.NEXTVAL AS id from dual
+		</selectKey>
+	
+		insert into BILL_MEDIUM_CHARSTC
+		(
+			BILL_PRESMENT_MED_CHARSTC_ID,
+			BILLING_ARRANGEMENT_ID,
+			BILL_MED_CD,
+			BILL_MED_COPY_CNT,
+			BILL_FMT_CD,
+			BILL_DTL_LVL_CD,
+			CREATE_TS, 
+			CREATE_USER_ID, 
+			LAST_UPDT_TS, 
+			LAST_UPDT_USER_ID,
+			MASTER_SOURCE_ID
+		) 
+		values 
+		(
+			#billMedia.id:NUMERIC#,
+			#billMedia.billingArrangementId:NUMERIC#,
+			#billMedia.mediaTypeCode:VARCHAR#,
+			#billMedia.copyCount:NUMERIC#, 
+			#billMedia.formatCode:VARCHAR#, 
+			#billMedia.detailLevelCode:VARCHAR#, 
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			#billMedia.masterSourceId:VARCHAR# 
+		)
+	</insert>
+	
+	
+	<!--		Configuration for UPDATE_BILL_MEDIA		-->
+	<update id="billing_update_bill_media" parameterClass="java.util.Map">
+		Update BILL_MEDIUM_CHARSTC
+		set 
+			BILL_MED_COPY_CNT = #billMedia.copyCount:NUMERIC#, 
+			BILL_FMT_CD = 	#billMedia.formatCode:VARCHAR:NONE#, 
+			BILL_DTL_LVL_CD = #billMedia.detailLevelCode:VARCHAR:NONE#, 
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId:VARCHAR#
+		Where 	BILLING_ARRANGEMENT_ID = #billMedia.billingArrangementId:NUMERIC#
+		AND BILL_MED_CD  = #billMedia.mediaTypeCode:VARCHAR#
+	</update>
+	
+	
+	<select id="billing_lookup_bill_cycle_code" parameterClass="java.util.Map" resultClass="java.lang.String">
+		SELECT BILL_CYCLE_CD FROM BILL_CYCLE_CODE_XREF
+		WHERE SRC_MASTER_SRC_ID = #masterSourceId:NUMERIC#
+		AND SRC_BILL_CYCLE_CD = #sourceBillCycleCode:VARCHAR#
+	</select>
+	
+
+	<resultMap id="billingAccountMap" class="com.telus.cmo.informationmgmt.domain.BillingAccount" groupBy="billingAccountId">
+		<result property="billingAccountId" column="billingAccountId"/>
+		<result property="billingMasterSourceId" column="billingMasterSourceId"/>
+		<result property="billingAccountNumber" column="billingAccountNumber"/>
+		<result property="customerId" column="customerId"/>
+		<result property="checkDigitNumber" column="checkDigitNumber"/>
+		<result property="openDate" column="openDate"/>
+		<result property="statusCode" column="statusCode"/>
+		<result property="statusDate" column="statusDate"/>
+		<result property="currencyCode" column="currencyCode"/>
+		<result property="currentBalanceAmount" column="currentBalanceAmount"/>
+		<result property="riskIndicatorCode" column="riskIndicatorCode"/>
+		<result property="collectionStartDate" column="collectionStartDate"/>
+		<result property="collectionsInd" column="collectionsInd"/>
+		<result property="suppressionStartDate" column="suppressionStartDate"/>
+		<result property="suppressionEndDate" column="suppressionEndDate"/>
+		<result property="followUpDate" column="followUpDate"/>
+		<result property="brandId" column="brandId"/>
+		<result property="billCycleCode" column="billCycleCode"/>
+		<result property="newBillCycleCode" column="newBillCycleCode"/>
+		<result property="billInsertSuppressionIndicator" column="billInsertSuppressionIndicator"/>
+		<result property="billReturnEnvelopeCode" column="billReturnEnvelopeCode"/>
+		<result property="billRedirectOperatorId" column="billRedirectOperatorId"/>
+		<result property="billRedirectOperatorName" column="billRedirectOperatorName"/>
+		<result property="billRedirectAddressText" column="billRedirectAddressText"/>
+		<result property="billRedirectReasonCode" column="billRedirectReasonCode"/>
+		<result property="billRedirectEffectiveStartDate" column="billRedirectEffectiveStartDate"/>
+		<result property="billRedirectEffectiveEndDate" column="billRedirectEffectiveEndDate"/>
+		<result property="billingArrangementId" column="billingArrangementId"/>
+		<result property="billingArrangementNumber" column="billingArrangementNumber"/>
+		<result property="addresses" resultMap="customerods.addressMap"/>
+		<result property="billingAccountExtension" resultMap="customerods.billingAccountExtensionMap"/>
+		<result property="billingNames" resultMap="customerods.billingNameMap"/>
+		<result property="billMediaList" resultMap="customerods.billMediaMap"/>
+		<result property="payChannel" resultMap="customerods.payChannelMap"/>
+	</resultMap>
+	
+	<resultMap id="billingAccountExtensionMap" class="com.telus.cmo.informationmgmt.domain.BillingAccountExtension">
+		<result property="billingAccountExtensionId" column="billingAccountExtensionId"/>
+		<result property="billingAccountId" column="billingAccountId"/>
+		<result property="sourceAccountTypeCode" column="sourceAccountTypeCode"/>
+		<result property="sourceAccountSubTypeCode" column="sourceAccountSubTypeCode"/>
+	</resultMap>
+	
+	<resultMap id="billingNameMap" class="com.telus.cmo.informationmgmt.domain.Name" groupBy="nameId">
+		<result property="nameId" column="nameId"/>
+		<result property="fullName" column="fullName"/>
+		<result property="salutationCode" column="salutationCode"/>
+		<result property="firstName" column="firstName"/>
+		<result property="middleName" column="middleName"/>
+		<result property="lastName" column="lastName"/>
+		<result property="nameSuffixCode" column="nameSuffixCode"/>
+		<result property="supplementaryName" column="supplementaryName"/>
+		<result property="supplementaryNameOperatingCode" column="supplementaryNameOperatingCode"/>
+		<result property="nameLine1Text" column="nameLine1Text"/>
+		<result property="nameLine2Text" column="nameLine2Text"/>
+		<result property="lastUpdateTimeStamp" column="lastUpdateTimeStamp"/>
+	</resultMap>
+	
+	<resultMap id="billMediaMap" class="com.telus.cmo.informationmgmt.domain.BillMedia" groupBy="id">
+		<result property="id" column="billMediaId"/>
+		<result property="mediaTypeCode" column="mediaTypeCode"/>
+		<result property="copyCount" column="copyCount"/>
+		<result property="formatCode" column="formatCode"/>
+		<result property="detailLevelCode" column="detailLevelCode"/>
+	</resultMap>
+		
+	<resultMap id="payChannelMap" class="com.telus.cmo.informationmgmt.domain.PayChannel">
+		<result property="id" column="payChannelId"/>
+		<result property="billingMasterSourceId" column="billingMasterSourceId2"/>
+		<result property="payChannelNumber" column="payChannelNumber"/>
+		<result property="payChannelStatusCode" column="payChannelStatusCode"/>
+		<result property="payChannelStatusDate" column="payChannelStatusDate"/>
+		<result property="payChannelCategoryCode" column="payChannelCategoryCode"/>
+		<result property="paymentMethodCode" column="paymentMethodCode"/>
+		<result property="maxPAPSDeductionAmount" column="maxPAPSDeductionAmount"/>
+		<result property="creditCardLastNDigitNumber" column="creditCardLastNDigitNumber"/>
+		<result property="PAPSSuspensionInd" column="papsSuspensionInd"/>
+		<result property="creditCardTypeCd" column="creditCardTypeCd"/>
+		<result property="creditCardExipryDt" column="creditCardExipryDt"/>
+		<result property="bankTransitNum" column="bankTransitNum"/>
+		<result property="bankBranchNum" column="bankBranchNum"/>
+	</resultMap>
+	
+	<resultMap id="addressMap" class="com.telus.cmo.informationmgmt.domain.Address" groupBy="addressId">
+		<result property="addressId" column="addressId"/>
+		<result property="addressTypeCode" column="addressTypeCode"/>
+		<result property="unitNumber" column="unitNumber"/>
+		<result property="civicNumber" column="civicNumber"/>
+		<result property="civicNumberSuffix" column="civicNumberSuffix"/>
+		<result property="streetName" column="streetName"/>
+		<result property="streetTypeCode" column="streetTypeCode"/>
+		<result property="streetDirectionCode" column="streetDirectionCode"/>
+		<result property="municipalityName" column="municipalityName"/>
+		<result property="provinceStateCode" column="provinceStateCode"/>
+		<result property="postalZipCode" column="postalZipCode"/>
+		<result property="countryCode" column="countryCode"/>
+		<result property="postOfficeBoxNumber" column="postOfficeBoxNumber"/>
+		<result property="stationTypeCode" column="stationTypeCode"/>
+		<result property="stationName" column="stationName"/>
+		<result property="careOf" column="careOf"/>
+		<result property="ruralRouteTypeCode" column="ruralRouteTypeCode"/>
+		<result property="ruralRouteNumber" column="ruralRouteNumber"/>
+		<result property="hmcsName" column="hmcsName"/>
+		<result property="fleetMailOfficeName" column="fleetMailOfficeName"/>
+		<result property="additionalAddressInformation" column="additionalAddressInformation" typeHandler="com.telus.cmo.informationmgmt.customerods.dao.ListCallbackHandler"/>
+		<result property="externalServiceAddressId" column="externalServiceAddressId"/>
+		<result property="emailAddressText" column="emailAddressText"/>
+		<result property="mailingTypeCode" column="mailingTypeCode"/>
+		<result property="addressMatchingStatusCode" column="addressMatchingStatusCode"/>
+		<result property="validateAddressIndicator" column="validateAddressIndicator"/>
+		<result property="renderedAddress" column="renderedAddress" typeHandler="com.telus.cmo.informationmgmt.customerods.dao.ListCallbackHandler"/>
+		<result property="addrAssgnmtId" column="addrAssgnmtId"/>
+		<result property="addressAssignmentTypeCode" column="addressAssignmentTypeCode"/>
+		<result property="masterSourceId" column="masterSourceId"/>
+		<result property="lastUpdateTimeStamp" column="lastUpdateTimeStamp2"/>
+		<result property="stationQualifier" column="stationQualifier" />
+	</resultMap>
+	
+	<resultMap id="billingAccountSummaryMap" class="com.telus.cmo.informationmgmt.customermgmt.BillingAccountSummary" groupBy="billingAccountId">
+		<result property="customerId" column="customerId"/>
+		<result property="billingAccountId" column="billingAccountId"/>
+		<result property="billingAccountNumber" column="billingAccountNumber"/>
+		<result property="collectionsInd" column="collectionsInd" typeHandler="com.telus.cmo.informationmgmt.customerods.dao.StringBooleanTypeHandler"/>
+		<result property="addressList" resultMap="customerods.AddressMap"/>
+		<result property="billingMasterSourceId" column="billingMasterSourceId"/>
+	</resultMap>
+	
+	<select id="billing_account_get_customer_id_by_billing_account_number" resultClass="long" parameterClass="java.util.Map">
+		
+		Select
+		bac.CUSTOMER_ID		as customerId
+		
+		From
+		Billing_Account bac
+		
+		where bac.BILLING_ACCOUNT_NUM = #billingAccountNumber:VARCHAR#
+		and bac.BILLING_MASTER_SRC_ID = #masterSourceId:VARCHAR#
+		and bac.BILLING_MASTER_SRC_ID <![CDATA[<>]]> 119
+	</select>
+
+	<!--		Configuration for GET_BILLING_ACCOUNT_COMPOSITE_BY_BILLING_ACCOUNT_NUMBER	-->
+	<select id="billing_account_get_billing_account_composite_by_billing_account_number" resultMap="billingAccountMap" parameterClass="java.util.Map">
+    SELECT     
+     *
+    FROM (
+           Select
+            bac.BILLING_ACCOUNT_ID                 as billingAccountId,
+            bac.BILLING_MASTER_SRC_ID            as billingMasterSourceId,
+            bac.BILLING_ACCOUNT_NUM             as billingAccountNumber, 
+            bac.CUSTOMER_ID                     as customerId,
+            bac.BACCT_CHK_DGT_NUM                 as checkDigitNumber,
+            bac.BACCT_OPEN_DT                     as openDate, 
+            bac.BACCT_STATUS_CD                 as statusCode, 
+            bac.BACCT_STATUS_DT                 as statusDate, 
+            bac.BILLING_CURRCY_CD                 as currencyCode,
+            Nvl(bac.CURR_BAL_AMT,0)             as currentBalanceAmount, 
+            bac.RISK_IND_CD                     as riskIndicatorCode, 
+            bac.COLL_START_DT                     as collectionStartDate,
+            bac.COLL_IND                         as collectionsInd,
+            bac.AUTOTRTMT_SUPPRESS_START_DT        as suppressionStartDate, 
+            bac.AUTOTRTMT_SUPPRESS_END_DT         as suppressionEndDate,
+            bac.COLL_FOLLOWUP_DT                 as followUpDate,
+            bac.BRAND_ID                         as brandId,
+            bac.BILL_CYCLE_CD                     as billCycleCode,
+            bac.NEW_BILL_CYCLE_CD                 as newBillCycleCode,
+            bar.BILL_INSRT_SUPPRESS_IND         as billInsertSuppressionIndicator,
+            bar.BILL_RTN_ENVELOPE_CD             as billReturnEnvelopeCode,
+            bar.BILL_REDIR_OPR_ID                 as billRedirectOperatorId,
+            bar.BILL_REDIR_OPR_NM                 as billRedirectOperatorName,
+            bar.BILL_REDIR_ADDR_TXT             as billRedirectAddressText,
+            bar.BILL_REDIR_RSN_CD                as billRedirectReasonCode,
+            bar.BILL_REDIR_EFF_START_DT         as billRedirectEffectiveStartDate,
+            bar.BILL_REDIR_EFF_END_DT            as billRedirectEffectiveEndDate,
+            bar.BILLING_ARRANGEMENT_ID            as billingArrangementId,
+            bar.BILLING_ARRANGEMENT_NUM            as billingArrangementNumber,
+            bn.BILLING_NM_ID                     as nameId, 
+            bn.FULL_NM                             as fullName,
+            bn.SALUTATION_CD                     as salutationCode, 
+            bn.FIRST_NM                         as firstName,
+            bn.MIDDLE_NM                         as middleName, 
+            bn.LAST_NM                             as lastName, 
+            bn.NM_SUFFIX_CD                        as nameSuffixCode,
+            bn.SUPPLMT_NM                        as supplementaryName, 
+            bn.SUPPLMT_NM_OPERATING_CD             as supplementaryNameOperatingCode, 
+            bn.NM_LN_1_TXT                         as nameLine1Text,
+            bn.NM_LN_2_TXT                         as nameLine2Text,
+            bn.LAST_UPDT_TS                        as lastUpdateTimeStamp,
+            pc.PAY_CHANNEL_ID                     as payChannelId, 
+            pc.BILLING_MASTER_SRC_ID             as billingMasterSourceId2, 
+            pc.PAY_CHNL_NUM                     as payChannelNumber,
+            pc.BILLING_ARRANGEMENT_ID             as billingArrangementId2,
+            pc.PAY_CHNL_STATUS_CD                 as payChannelStatusCode, 
+            pc.PAY_CHNL_STATUS_DT                 as payChannelStatusDate, 
+            pc.PAY_CHNL_CATGY_CD                 as payChannelCategoryCode, 
+            pc.PYMT_MTHD_CD                     as paymentMethodCode,
+            Nvl(pc.MAXIMIUM_PAPS_DDUCT_AMT, 0)     as maxPAPSDeductionAmount,
+            pc.CREDIT_CARD_LAST_N_DGT_NUM         as creditCardLastNDigitNumber,
+            pc.PAPS_SUSPENSION_IND                 as papsSuspensionInd, 
+            pc.CREDIT_CARD_TYPE_CD                 as creditCardTypeCd, 
+            pc.CREDIT_CARD_EXPIR_DT             as creditCardExipryDt,
+            pc.BANK_CD                             as bankTransitNum, 
+            pc.BANK_BRNCH_NUM                     as bankBranchNum,
+            bm.BILL_PRESMENT_MED_CHARSTC_ID     as billMediaId,
+            bm.BILL_MED_CD                         as mediaTypeCode, 
+            Nvl(bm.BILL_MED_COPY_CNT, 0)        as copyCount,
+            bm.BILL_FMT_CD                         as formatCode, 
+            bm.BILL_DTL_LVL_CD                     as detailLevelCode,
+            be.BILLING_ACCOUNT_EXT_ID            as billingAccountExtensionId,
+            be.BILLING_ACCOUNT_ID                as billingAccountId2,
+            be.SOURCE_ACCOUNT_TYPE_CD            as sourceAccountTypeCode,
+            be.SOURCE_ACCOUNT_SUBTYPE_CD        as sourceAccountSubTypeCode,
+            a.ADDR_ID                             as addressId,
+            a.ADDR_TYPE_CD                         as addressTypeCode,
+            a.UNIT_NUM                             as unitNumber,
+            a.CIVIC_NUM                         as civicNumber,
+            a.CIVIC_NUM_SFX_TXT                 as civicNumberSuffix,
+            a.STREET_NM                         as streetName,
+            a.STREET_TYPE_CD                     as streetTypeCode,
+            a.STREET_DIR_CD                     as streetDirectionCode,
+            a.MUNIC_NM                             as municipalityName,
+            a.PROV_STATE_CD                     as provinceStateCode,
+            a.POSTAL_ZIP_CD_TXT                 as postalZipCode,
+            a.COUNTRY_CD                         as countryCode,
+            a.PO_BOX_NUM                         as postOfficeBoxNumber,
+            a.STN_TYPE_CD                         as stationTypeCode,
+            a.STN_NM                             as stationQualifier,
+            a.CARE_OF_TXT                         as careOf,
+            a.RUR_RTE_TYPE_CD                     as ruralRouteTypeCode,
+            a.RUR_RTE_NUM                         as ruralRouteNumber,
+            a.HMCS_NM                             as hmcsName,
+            a.FLEET_MAIL_OFFC_NM                 as fleetMailOfficeName,
+            a.ADDNL_ADDR_INFO_1_TXT ||'|'|| a.ADDNL_ADDR_INFO_2_TXT ||'|'|| a.ADDNL_ADDR_INFO_3_TXT ||'|'|| a.ADDNL_ADDR_INFO_4_TXT as additionalAddressInformation,
+            a.EXTRNL_SERVICE_ADDR_ID             as externalServiceAddressId,
+            a.EMAIL_ADDR_TXT                     as emailAddressText,
+            a.MAILG_TYPE_CD                     as mailingTypeCode,
+            a.ADDR_MATCHING_STAT_CD              as addressMatchingStatusCode,
+            a.VALID_ADDR_IND                     as validateAddressIndicator,
+            a.RENDERED_ADDR_LN_1_TXT ||'|'|| a.RENDERED_ADDR_LN_2_TXT ||'|'|| a.RENDERED_ADDR_LN_3_TXT ||'|'|| a.RENDERED_ADDR_LN_4_TXT ||'|'|| a.RENDERED_ADDR_LN_5_TXT as renderedAddress,
+            aa.ADDR_ASGNMT_ID                     as addrAssgnmtId,
+            aa.ADDR_ASGNMT_TYPE_CD                 as addressAssignmentTypeCode,
+            a.MASTER_SOURCE_ID                     as masterSourceId,
+            a.LAST_UPDT_TS                         as lastUpdateTimeStamp2,
+            a.STN_AREA_NM                        as stationName,
+            RANK() OVER (PARTITION BY bar.BILLING_ACCOUNT_ID ORDER BY billing_arrngmt_status_dt DESC) as RANK_BILL_ARR_STAT_DT
+            
+            From
+            Billing_Account bac,
+            Billing_Arrangement bar,
+            Billing_Name bn,
+            Pay_Channel pc,
+            Bill_Medium_Charstc bm,
+            Billing_Account_Ext be,
+            Address a,
+            Address_Assignment aa
+            
+            where bac.BILLING_ACCOUNT_ID = bar.BILLING_ACCOUNT_ID (+)
+            and bn.BILLING_ACCOUNT_ID (+)= bac.BILLING_ACCOUNT_ID
+            and pc.BILLING_ARRANGEMENT_ID (+)= bar.BILLING_ARRANGEMENT_ID
+            and bm.BILLING_ARRANGEMENT_ID (+)= bar.BILLING_ARRANGEMENT_ID
+            and be.BILLING_ACCOUNT_ID (+)= bac.BILLING_ACCOUNT_ID
+            and aa.ENTITY_ID (+)= bac.BILLING_ACCOUNT_ID
+            and aa.ADDR_ID = a.addr_id (+)
+            and aa.ENTITY_TYPE_CD = 'ACCOUNT'
+            and not exists 
+            (     Select 1
+            
+                  From
+             
+                  Address_assignment aa2
+              
+                where aa2.ENTITY_TYPE_CD = aa.ENTITY_TYPE_CD
+                and aa2.ADDR_ASGNMT_TYPE_CD = aa.ADDR_ASGNMT_TYPE_CD
+                and aa2.ENTITY_ID = aa.ENTITY_ID
+                and aa2.ADDR_ID != a.ADDR_ID
+                and aa2.MASTER_SOURCE_ID = #masterSourceId:NUMERIC#
+                and Nvl (aa2.EFF_END_DT, Sysdate - 1 ) > Nvl (aa.EFF_END_DT, Sysdate + 1 ) 
+            )
+            and aa.EFF_END_DT is null
+            and bac.BILLING_ACCOUNT_NUM = #value:VARCHAR#
+            and bac.BILLING_MASTER_SRC_ID = #masterSourceId:NUMERIC#
+        )
+        WHERE RANK_BILL_ARR_STAT_DT = 1
+	</select>
+	
+	
+	
+	<!--		Configuration for GET_BILLING_ACCOUNT_COMPOSITE_BY_CUSTOMER_ID		-->
+	<select id="billing_account_get_billing_account_composite_by_customer_id" resultMap="billingAccountMap" parameterClass="java.lang.Integer">
+		SELECT
+			*
+        FROM (
+                Select
+                bac.BILLING_ACCOUNT_ID                 as billingAccountId,
+                bac.BILLING_MASTER_SRC_ID            as billingMasterSourceId,
+                bac.BILLING_ACCOUNT_NUM             as billingAccountNumber, 
+                bac.CUSTOMER_ID                     as customerId,
+                bac.BACCT_CHK_DGT_NUM                 as checkDigitNumber,
+                bac.BACCT_OPEN_DT                     as openDate, 
+                bac.BACCT_STATUS_CD                 as statusCode, 
+                bac.BACCT_STATUS_DT                 as statusDate, 
+                bac.BILLING_CURRCY_CD                 as currencyCode,
+                Nvl(bac.CURR_BAL_AMT,0)             as currentBalanceAmount, 
+                bac.RISK_IND_CD                     as riskIndicatorCode, 
+                bac.COLL_START_DT                     as collectionStartDate,
+                bac.COLL_IND                         as collectionsInd,
+                bac.AUTOTRTMT_SUPPRESS_START_DT        as suppressionStartDate, 
+                bac.AUTOTRTMT_SUPPRESS_END_DT         as suppressionEndDate,
+                bac.COLL_FOLLOWUP_DT                 as followUpDate,
+                bac.BRAND_ID                         as brandId,
+                bac.BILL_CYCLE_CD                     as billCycleCode,
+                bac.NEW_BILL_CYCLE_CD                 as newBillCycleCode,
+                bar.BILL_INSRT_SUPPRESS_IND         as billInsertSuppressionIndicator,
+                bar.BILL_RTN_ENVELOPE_CD             as billReturnEnvelopeCode,
+                bar.BILL_REDIR_OPR_ID                 as billRedirectOperatorId,
+                bar.BILL_REDIR_OPR_NM                 as billRedirectOperatorName,
+                bar.BILL_REDIR_ADDR_TXT             as billRedirectAddressText,
+                bar.BILL_REDIR_RSN_CD                as billRedirectReasonCode,
+                bar.BILL_REDIR_EFF_START_DT         as billRedirectEffectiveStartDate,
+                bar.BILL_REDIR_EFF_END_DT            as billRedirectEffectiveEndDate,
+                bar.BILLING_ARRANGEMENT_ID            as billingArrangementId,
+                bar.BILLING_ARRANGEMENT_NUM            as billingArrangementNumber,
+                bn.BILLING_NM_ID                     as nameId, 
+                bn.FULL_NM                             as fullName,
+                bn.SALUTATION_CD                     as salutationCode, 
+                bn.FIRST_NM                         as firstName,
+                bn.MIDDLE_NM                         as middleName, 
+                bn.LAST_NM                             as lastName, 
+                bn.NM_SUFFIX_CD                        as nameSuffixCode,
+                bn.SUPPLMT_NM                        as supplementaryName, 
+                bn.SUPPLMT_NM_OPERATING_CD             as supplementaryNameOperatingCode, 
+                bn.NM_LN_1_TXT                         as nameLine1Text,
+                bn.NM_LN_2_TXT                         as nameLine2Text,
+                bn.LAST_UPDT_TS                        as lastUpdateTimeStamp,
+                pc.PAY_CHANNEL_ID                     as payChannelId, 
+                pc.BILLING_MASTER_SRC_ID             as billingMasterSourceId2, 
+                pc.PAY_CHNL_NUM                     as payChannelNumber,
+                pc.BILLING_ARRANGEMENT_ID             as billingArrangementId2, 
+                pc.PAY_CHNL_STATUS_CD                 as payChannelStatusCode, 
+                pc.PAY_CHNL_STATUS_DT                 as payChannelStatusDate, 
+                pc.PAY_CHNL_CATGY_CD                 as payChannelCategoryCode, 
+                pc.PYMT_MTHD_CD                     as paymentMethodCode,
+                Nvl(pc.MAXIMIUM_PAPS_DDUCT_AMT, 0)     as maxPAPSDeductionAmount,
+                pc.CREDIT_CARD_LAST_N_DGT_NUM         as creditCardLastNDigitNumber,
+                pc.PAPS_SUSPENSION_IND                 as papsSuspensionInd, 
+                pc.CREDIT_CARD_TYPE_CD                 as creditCardTypeCd, 
+                pc.CREDIT_CARD_EXPIR_DT             as creditCardExipryDt,
+                pc.BANK_CD                             as bankTransitNum, 
+                pc.BANK_BRNCH_NUM                     as bankBranchNum,
+                bm.BILL_PRESMENT_MED_CHARSTC_ID     as billMediaId,
+                bm.BILL_MED_CD                         as mediaTypeCode, 
+                Nvl(bm.BILL_MED_COPY_CNT, 0)        as copyCount,
+                bm.BILL_FMT_CD                         as formatCode, 
+                bm.BILL_DTL_LVL_CD                     as detailLevelCode,
+                be.BILLING_ACCOUNT_EXT_ID            as billingAccountExtensionId,
+                be.BILLING_ACCOUNT_ID                as billingAccountId2, 
+                be.SOURCE_ACCOUNT_TYPE_CD            as sourceAccountTypeCode,
+                be.SOURCE_ACCOUNT_SUBTYPE_CD        as sourceAccountSubTypeCode,
+                a.ADDR_ID                             as addressId,
+                a.ADDR_TYPE_CD                         as addressTypeCode,
+                a.UNIT_NUM                             as unitNumber,
+                a.CIVIC_NUM                         as civicNumber,
+                a.CIVIC_NUM_SFX_TXT                 as civicNumberSuffix,
+                a.STREET_NM                         as streetName,
+                a.STREET_TYPE_CD                     as streetTypeCode,
+                a.STREET_DIR_CD                     as streetDirectionCode,
+                a.MUNIC_NM                             as municipalityName,
+                a.PROV_STATE_CD                     as provinceStateCode,
+                a.POSTAL_ZIP_CD_TXT                 as postalZipCode,
+                a.COUNTRY_CD                         as countryCode,
+                a.PO_BOX_NUM                         as postOfficeBoxNumber,
+                a.STN_TYPE_CD                         as stationTypeCode,
+                a.STN_NM                             as stationQualifier,
+                a.CARE_OF_TXT                         as careOf,
+                a.RUR_RTE_TYPE_CD                     as ruralRouteTypeCode,
+                a.RUR_RTE_NUM                         as ruralRouteNumber,
+                a.HMCS_NM                             as hmcsName,
+                a.FLEET_MAIL_OFFC_NM                 as fleetMailOfficeName,
+                a.ADDNL_ADDR_INFO_1_TXT ||'|'|| a.ADDNL_ADDR_INFO_2_TXT ||'|'|| a.ADDNL_ADDR_INFO_3_TXT ||'|'|| a.ADDNL_ADDR_INFO_4_TXT as additionalAddressInformation,
+                a.EXTRNL_SERVICE_ADDR_ID             as externalServiceAddressId,
+                a.EMAIL_ADDR_TXT                     as emailAddressText,
+                a.MAILG_TYPE_CD                     as mailingTypeCode,
+                a.ADDR_MATCHING_STAT_CD              as addressMatchingStatusCode,
+                a.VALID_ADDR_IND                     as validateAddressIndicator,
+                a.RENDERED_ADDR_LN_1_TXT ||'|'|| a.RENDERED_ADDR_LN_2_TXT ||'|'|| a.RENDERED_ADDR_LN_3_TXT ||'|'|| a.RENDERED_ADDR_LN_4_TXT ||'|'|| a.RENDERED_ADDR_LN_5_TXT as renderedAddress,
+                aa.ADDR_ASGNMT_ID                     as addrAssgnmtId,
+                aa.ADDR_ASGNMT_TYPE_CD                 as addressAssignmentTypeCode,
+                a.MASTER_SOURCE_ID                     as masterSourceId,
+                a.LAST_UPDT_TS                         as lastUpdateTimeStamp2,
+                a.STN_AREA_NM                        as stationName,
+                RANK() OVER (PARTITION BY bar.BILLING_ACCOUNT_ID ORDER BY billing_arrngmt_status_dt DESC) as RANK_BILL_ARR_STAT_DT
+                
+                From
+                Billing_Account bac,
+                Billing_Arrangement bar,
+                Billing_Name bn,
+                Pay_Channel pc,
+                Bill_Medium_Charstc bm,
+                Billing_Account_Ext be,
+                Address a,
+                Address_Assignment aa
+                
+                where bac.BILLING_ACCOUNT_ID = bar.BILLING_ACCOUNT_ID (+)
+                and bn.BILLING_ACCOUNT_ID (+)= bac.BILLING_ACCOUNT_ID        
+                and pc.BILLING_ARRANGEMENT_ID (+)= bar.BILLING_ARRANGEMENT_ID
+                and bm.BILLING_ARRANGEMENT_ID (+)= bar.BILLING_ARRANGEMENT_ID
+                and be.BILLING_ACCOUNT_ID (+)= bac.BILLING_ACCOUNT_ID
+                and aa.ENTITY_ID (+)= bac.BILLING_ACCOUNT_ID
+                and aa.ADDR_ID = a.addr_id (+)
+                and aa.ENTITY_TYPE_CD = 'ACCOUNT'
+                and not exists 
+                (     Select 1
+                
+                      From
+
+                      Address_assignment aa2
+                  
+                    where aa2.ENTITY_TYPE_CD = aa.ENTITY_TYPE_CD
+                    and aa2.ADDR_ASGNMT_TYPE_CD = aa.ADDR_ASGNMT_TYPE_CD
+                    and aa2.ENTITY_ID = aa.ENTITY_ID
+                    and aa2.ADDR_ID != a.ADDR_ID
+                    and Nvl (aa2.EFF_END_DT, Sysdate - 1 ) > Nvl (aa.EFF_END_DT, Sysdate + 1 ) 
+                )
+                and aa.EFF_END_DT is null
+                and bac.CUSTOMER_ID = #value:NUMERIC#
+        ) WHERE RANK_BILL_ARR_STAT_DT = 1  
+	</select>
+
+	<!-- updateBillCycle -->
+	<update id="billing_update_bill_cycle" parameterClass="java.util.Map">
+		update BILLING_ACCOUNT
+		set NEW_BILL_CYCLE_CD=#newBillCycleCode:VARCHAR#,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId:VARCHAR#
+		where BILLING_MASTER_SRC_ID = #masterSourceId:NUMERIC#
+			and BILLING_ACCOUNT_NUM=#billingAccountNumber:VARCHAR#
+	</update>
+	
+
+	<!--		Configuration for INSERT_PAY_CHANNEL		-->
+	<insert id="billing_insert_pay_channel" parameterClass="java.util.Map">
+		<selectKey resultClass="int" keyProperty="payChannel.id">
+			select PAY_CHANNEL_ID_SEQ.NEXTVAL AS id from dual
+		</selectKey>
+
+		insert into PAY_CHANNEL
+		(
+			PAY_CHANNEL_ID,
+			BILLING_MASTER_SRC_ID,
+			PAY_CHNL_NUM,
+			BILLING_ARRANGEMENT_ID,
+			<isNotNull property="payChannel.payChannelOpenDate">
+				PAY_CHNL_OPEN_DT, 
+			</isNotNull>
+			PAY_CHNL_STATUS_CD,
+			<isNotNull property="payChannel.payChannelStatusDate">
+				PAY_CHNL_STATUS_DT, 
+			</isNotNull>
+			PAY_CHNL_CATGY_CD,
+			PYMT_MTHD_CD,
+			MAXIMIUM_PAPS_DDUCT_AMT,
+			PAPS_SUSPENSION_IND,
+			CREDIT_CARD_LAST_N_DGT_NUM,
+			CREDIT_CARD_TYPE_CD,
+			CREDIT_CARD_EXPIR_DT,
+			BANK_CD,
+			BANK_BRNCH_NUM,
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS,
+			LAST_UPDT_USER_ID
+		)
+		values
+		(
+			#payChannel.id:NUMERIC#,
+			#payChannel.billingMasterSourceId:NUMERIC#,
+			#payChannel.payChannelNumber:NUMERIC#,
+			#billingArrangementId:NUMERIC#,
+			<isNotNull property="payChannel.payChannelOpenDate">
+				#payChannel.payChannelOpenDate:TIMESTAMP#,
+			</isNotNull>
+			#payChannel.payChannelStatusCode:VARCHAR:NONE#,
+			<isNotNull property="payChannel.payChannelStatusDate">
+				#payChannel.payChannelStatusDate:TIMESTAMP#,
+			</isNotNull>
+			#payChannel.payChannelCategoryCode:VARCHAR#,
+			#payChannel.paymentMethodCode:VARCHAR:NONE#,
+			#payChannel.maxPAPSDeductionAmount:NUMERIC#,
+			#payChannel.PAPSSuspensionInd:VARCHAR#,
+			#payChannel.creditCardLastNDigitNumber:VARCHAR#,
+			#payChannel.creditCardTypeCd:VARCHAR#,
+			#payChannel.creditCardExipryDt:DATE#,
+			#payChannel.bankTransitNum:VARCHAR#,
+			#payChannel.bankBranchNum:VARCHAR#,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#,
+			SYSTIMESTAMP,
+			#auditInfo.userId:VARCHAR#
+		)
+	</insert>
+
+
+	<!-- updatePayChannel -->
+	<update id="billing_update_pay_channel" parameterClass="java.util.Map">
+		update PAY_CHANNEL
+		set PAY_CHNL_CATGY_CD = #payChannel.payChannelCategoryCode:VARCHAR#,
+		    PAY_CHNL_STATUS_CD = #payChannel.payChannelStatusCode:VARCHAR#,
+		    <isNotNull property="payChannel.payChannelStatusDate">
+				PAY_CHNL_STATUS_DT = #payChannel.payChannelStatusDate:DATE#, 
+			</isNotNull>
+			PYMT_MTHD_CD = #payChannel.paymentMethodCode:VARCHAR#,
+			CREDIT_CARD_LAST_N_DGT_NUM = #payChannel.creditCardLastNDigitNumber:VARCHAR#,
+			MAXIMIUM_PAPS_DDUCT_AMT = #payChannel.maxPAPSDeductionAmount:NUMERIC#,
+			PAPS_SUSPENSION_IND = #payChannel.PAPSSuspensionInd:VARCHAR#,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId:VARCHAR#,
+			BANK_BRNCH_NUM =  #payChannel.bankBranchNum:VARCHAR#,
+			BANK_CD = #payChannel.bankTransitNum:VARCHAR#,
+			CREDIT_CARD_EXPIR_DT = #payChannel.creditCardExipryDt:TIMESTAMP#,
+			CREDIT_CARD_TYPE_CD = #payChannel.creditCardTypeCd:VARCHAR#
+		where BILLING_ARRANGEMENT_ID IN (
+			SELECT BILLING_ARRANGEMENT_ID FROM BILLING_ARRANGEMENT bar INNER JOIN
+			BILLING_ACCOUNT ba on bar.BILLING_ACCOUNT_ID = ba.BILLING_ACCOUNT_ID
+			WHERE ba.BILLING_ACCOUNT_NUM = #payChannel.billingAccountNumber:VARCHAR#
+				and ba.BILLING_MASTER_SRC_ID = #payChannel.billingMasterSourceId:NUMERIC#
+			)
+	</update>
+	
+	<resultMap id="customerBillingAccountAssignment" class="com.telus.cmo.informationmgmt.customerods.CustomerBillingAccountAssignment">
+		<result property="custBacctAsgnmtId" column="CUST_BACCT_ASGNMT_ID"/>
+		<result property="customerId" column="CUSTOMER_ID"/>
+		<result property="billingAccountId" column="BILLING_ACCOUNT_ID"/>
+		<result property="mostRecentInd" column="MOST_RECENT_IND"/>
+		<result property="effStartDt" column="EFF_START_DT"/>
+		<result property="effEndDt" column="EFF_END_DT"/>
+		<result property="createTs" column="CREATE_TS"/>
+		<result property="createUserId" column="CREATE_USER_ID"/>
+		<result property="lastUpdtTs" column="LAST_UPDT_TS"/>
+		<result property="lastUpdtUserId" column="LAST_UPDT_USER_ID"/>
+	</resultMap> 
+	
+	<!-- Configuration for GET_CUSTOMER_BILLING_ACCOUNT_ASSIGNMENTS_BY_CUSTOMER_ID -->
+	<select id="get_customer_billing_account_assignments_by_customer_id" resultMap="customerBillingAccountAssignment" parameterClass="java.lang.Long">
+		
+		SELECT 
+			CUST_BACCT_ASGNMT_ID,
+			CUSTOMER_ID,
+			BILLING_ACCOUNT_ID,
+			MOST_RECENT_IND,
+			EFF_START_DT,
+			EFF_END_DT,
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS,
+			LAST_UPDT_USER_ID
+		FROM
+			CUST_BACCT_ASGNMT
+		WHERE 
+			CUSTOMER_ID = #value#	
+	</select>
+	
+	<!-- Configuration for EXPIRE_CUSTOMER_BILLING_ACCOUNT_ASSIGNMENT_BY_CUSTOMER_ID -->
+	<update id="expire_customer_billing_account_assignment_by_customer_id" parameterClass="java.util.Map">
+		UPDATE
+			CUST_BACCT_ASGNMT
+		SET
+		    MOST_RECENT_IND = 'N',
+			EFF_END_DT = SYSDATE,
+			LAST_UPDT_TS = SYSTIMESTAMP,
+			LAST_UPDT_USER_ID = #auditInfo.userId#
+		WHERE 
+			CUSTOMER_ID = #customerId#
+			and EFF_END_DT is NULL
+	</update>
+	
+	<!-- Configuration for INSERT_CUSTOMER_BILLING_ACCOUNT_ASSIGNMENT -->
+	<insert id="insert_customer_billing_account_assignment" parameterClass="java.util.Map">
+		
+		<selectKey resultClass="int" keyProperty="id">
+			select CUST_BACCT_ASGNMT_ID_SEQ.NEXTVAL AS id from dual
+		</selectKey>
+		
+		INSERT INTO	
+			CUST_BACCT_ASGNMT
+		(
+			CUST_BACCT_ASGNMT_ID,
+			CUSTOMER_ID,
+			BILLING_ACCOUNT_ID,
+			MOST_RECENT_IND,
+			EFF_START_DT,
+			EFF_END_DT,
+			CREATE_TS,
+			CREATE_USER_ID,
+			LAST_UPDT_TS,
+			LAST_UPDT_USER_ID
+		)
+		VALUES
+		(
+			#id#,
+			#custBillingAcctAssignment.customerId#,
+			#custBillingAcctAssignment.billingAccountId#,
+			#custBillingAcctAssignment.mostRecentInd#,
+			SYSDATE,
+			null,				
+			SYSTIMESTAMP,
+			#auditInfo.userId#,
+			SYSTIMESTAMP,
+			#auditInfo.userId#
+		)
+	</insert>
+	
+	<!--		Configuration for GET_BILLING_ACCOUNT_SUMMARY_BY_CUSTOMER_ID	-->
+	<select id="billing_account_get_billing_account_summary_by_customer_id" parameterClass="java.util.List" resultMap="billingAccountSummaryMap">
+		
+		Select 
+		ba.CUSTOMER_ID as customerId, 
+		ba.BILLING_ACCOUNT_ID as billingAccountId, 
+		ba.BILLING_ACCOUNT_NUM as billingAccountNumber,
+		ba.COLL_IND as collectionsInd,
+		ba.BILLING_MASTER_SRC_ID as billingMasterSourceId,
+		addr.ADDR_ID  as addressId,
+		addr.ADDR_ASGNMT_ID as addrAssgnmtId,
+		addr.ADDR_TYPE_CD  as addressTypeCode,
+		addr.UNIT_NUM  as unitNumber,
+		addr.CIVIC_NUM  as civicNumber,
+		addr.CIVIC_NUM_SFX_TXT  as civicNumberSuffix,
+		addr.STREET_NM  as streetName,
+		addr.STREET_TYPE_CD  as streetTypeCode,
+		addr.STREET_DIR_CD  as streetDirectionCode,
+		addr.MUNIC_NM  as municipalityName,
+		addr.PROV_STATE_CD  as provinceStateCode,
+		addr.POSTAL_ZIP_CD_TXT  as postalZipCode,
+		addr.COUNTRY_CD  as countryCode,
+		addr.PO_BOX_NUM  as postOfficeBoxNumber,
+		addr.STN_TYPE_CD  as stationTypeCode,
+		addr.STN_NM  as stationQualifier,
+		addr.CARE_OF_TXT as careOf,
+		addr.RUR_RTE_TYPE_CD  as ruralRouteTypeCode,
+		addr.RUR_RTE_NUM  as ruralRouteNumber,
+		addr.HMCS_NM  as hmcsName,
+		addr.FLEET_MAIL_OFFC_NM  as fleetMailOfficeName,
+		addr.ADDNL_ADDR_INFO_1_TXT  as additionalAddressInformation1,
+		addr.ADDNL_ADDR_INFO_2_TXT  as additionalAddressInformation2,
+		addr.ADDNL_ADDR_INFO_3_TXT  as additionalAddressInformation3,
+		addr.ADDNL_ADDR_INFO_4_TXT  as additionalAddressInformation4,
+		addr.ADDNL_ADDR_INFO_1_TXT ||'|'|| addr.ADDNL_ADDR_INFO_2_TXT ||'|'|| addr.ADDNL_ADDR_INFO_3_TXT ||'|'|| addr.ADDNL_ADDR_INFO_4_TXT as additionalAddressInformation,
+		addr.EXTRNL_SERVICE_ADDR_ID  as externalServiceAddressId,
+		addr.EMAIL_ADDR_TXT  as emailAddressText,
+		addr.MAILG_TYPE_CD  as mailingTypeCode,
+		addr.ADDR_MATCHING_STAT_CD  as addressMatchingStatuscode,
+		addr.VALID_ADDR_IND  as validateAddressIndicator,
+		addr.RENDERED_ADDR_LN_1_TXT  as addressLine1,
+		addr.RENDERED_ADDR_LN_2_TXT  as addressLine2,
+		addr.RENDERED_ADDR_LN_3_TXT  as addressLine3,
+		addr.RENDERED_ADDR_LN_4_TXT  as addressLine4,
+		addr.RENDERED_ADDR_LN_5_TXT  as renderedAddressLine5,
+		addr.RENDERED_ADDR_LN_1_TXT ||'|'|| addr.RENDERED_ADDR_LN_2_TXT ||'|'|| addr.RENDERED_ADDR_LN_3_TXT ||'|'|| addr.RENDERED_ADDR_LN_4_TXT ||'|'|| addr.RENDERED_ADDR_LN_5_TXT as renderedAddressLine,
+		addr.ADDR_ASGNMT_TYPE_CD as addressAssignmentTypeCode,
+		addr.EFF_START_DT as effectiveStartDate,
+		addr.EFF_END_DT as effectiveEndDate,
+		addr.ENTITY_ID as entityId,
+		addr.MASTER_SOURCE_ID as masterSourceId,
+		addr.STN_AREA_NM as stationName
+		From 
+		Billing_Account ba
+		left outer join
+		(select /*+ USE_NL(a aa) USE_NL(a2 aa2)  */
+		a.ADDR_ID,
+		a.ADDR_TYPE_CD,
+		a.UNIT_NUM,
+		a.CIVIC_NUM,
+		a.CIVIC_NUM_SFX_TXT,
+		a.STREET_NM,
+		a.STREET_TYPE_CD,
+		a.STREET_DIR_CD,
+		a.MUNIC_NM,
+		a.PROV_STATE_CD,
+		a.POSTAL_ZIP_CD_TXT,
+		a.COUNTRY_CD,
+		a.PO_BOX_NUM,
+		a.STN_TYPE_CD,
+		a.STN_NM,
+		a.CARE_OF_TXT,
+		a.RUR_RTE_TYPE_CD,
+		a.RUR_RTE_NUM,
+		a.HMCS_NM,
+		a.FLEET_MAIL_OFFC_NM,
+		a.ADDNL_ADDR_INFO_1_TXT,
+		a.ADDNL_ADDR_INFO_2_TXT,
+		a.ADDNL_ADDR_INFO_3_TXT,
+		a.ADDNL_ADDR_INFO_4_TXT,
+		a.EXTRNL_SERVICE_ADDR_ID,
+		a.EMAIL_ADDR_TXT,
+		a.MAILG_TYPE_CD,
+		a.ADDR_MATCHING_STAT_CD,
+		a.VALID_ADDR_IND,
+		a.RENDERED_ADDR_LN_1_TXT,
+		a.RENDERED_ADDR_LN_2_TXT,
+		a.RENDERED_ADDR_LN_3_TXT,
+		a.RENDERED_ADDR_LN_4_TXT,
+		a.RENDERED_ADDR_LN_5_TXT,
+		a.MASTER_SOURCE_ID,
+		a.STN_AREA_NM,
+		aa.ADDR_ASGNMT_ID,
+		aa.ADDR_ASGNMT_TYPE_CD,
+		aa.EFF_START_DT,
+		aa.EFF_END_DT,
+		aa.ENTITY_ID
+		 from Address a, ADDRESS_ASSIGNMENT aa 
+		where aa.ADDR_ID = a.ADDR_ID
+		  and aa.ENTITY_TYPE_CD = 'ACCOUNT'
+		  and aa.ADDR_ASGNMT_TYPE_CD = 'M'
+		  and not exists 
+			( select 1 from Address a2, ADDRESS_ASSIGNMENT aa2
+				where aa2.ADDR_ID = a2.ADDR_ID
+				and  aa2.ENTITY_TYPE_CD = aa.ENTITY_TYPE_CD
+				and aa2.ADDR_ASGNMT_TYPE_CD = aa.ADDR_ASGNMT_TYPE_CD
+				and aa2.ENTITY_ID = aa.ENTITY_ID     
+				and a2.ADDR_ID != a.ADDR_ID
+				and Nvl (aa2.EFF_END_DT, Sysdate - 1 ) > Nvl (aa.EFF_END_DT, Sysdate + 1 ) 
+			)
+		)addr
+		on ba.BILLING_ACCOUNT_ID = addr.ENTITY_ID
+		where ba.CUSTOMER_ID in	<iterate open="(" close=")" conjunction=",">#customerIdsList[]#</iterate>
+	</select>
+	
+	<!--		Configuration for HAS_OPEN_WIRELINE_BILLING_ACCOUNT	-->
+	<select id="billing_account_has_open_wireline_billing_account" resultClass="int" parameterClass="java.util.Map">
+	
+		Select count(*)
+	
+		From billing_account
+		where CUSTOMER_ID = #customerId:NUMERIC#
+		and BILLING_MASTER_SRC_ID = #masterSourceId:NUMERIC#
+		and BACCT_STATUS_CD = #billingAcctStatus:VARCHAR#
+	
+	</select>
+	
+	<select id="get_billing_account_numbers_by_customer_id" parameterClass="java.util.Map" resultClass="java.lang.Long">
+		Select billing_account_num
+		From billing_account
+		where customer_id = #customerId#
+		and  billing_master_src_id = #masterSourceId#
+	</select> 
+	
+	
+	 <select id="service_get_recent_pay_channel_by_billingaccountnumber" 
+	    resultClass="long" 
+        parameterClass="long">
+        
+        select 
+            pc.PAY_CHANNEL_ID as id
+            from pay_channel pc 
+                where pc.BILLING_ARRANGEMENT_ID in (select bar.BILLING_ARRANGEMENT_ID from billing_arrangement bar where bar.BILLING_ACCOUNT_ID = 
+					(select ba.BILLING_ACCOUNT_ID from billing_account ba where ba.BILLING_ACCOUNT_NUM=#value#))
+                      and pc.LAST_UPDT_TS = (select 
+                                Max(pc.LAST_UPDT_TS)
+                            from pay_channel pc 
+                            where pc.BILLING_ARRANGEMENT_ID in (select bar.BILLING_ARRANGEMENT_ID from billing_arrangement bar where bar.BILLING_ACCOUNT_ID = 
+					(select ba.BILLING_ACCOUNT_ID from billing_account ba where ba.BILLING_ACCOUNT_NUM=#value#)))          
+
+	 </select>		
+	
+</sqlMap>
